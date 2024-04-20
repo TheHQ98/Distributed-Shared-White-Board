@@ -7,6 +7,6 @@ import WhiteBoard.WhiteBoardGUI;
 
 public class CreateWhiteBoard {
     public static void main(String[] args) {
-        new WhiteBoardGUI();
+        new WhiteBoardGUI("user", true);
     }
 }

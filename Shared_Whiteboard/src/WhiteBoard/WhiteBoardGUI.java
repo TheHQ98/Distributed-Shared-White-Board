@@ -13,27 +13,28 @@ import java.awt.event.ActionListener;
 
 public class WhiteBoardGUI {
     private JFrame frame;
+    private final String userID;
+    private final boolean isManager;
 
-    public WhiteBoardGUI() {
+    public WhiteBoardGUI(String userID, boolean isManager) {
+        this.userID = userID;
+        this.isManager = isManager;
+
         frame = new JFrame();
         frame.setTitle(ClientParams.GUI_TITLE);
         frame.setSize(ClientParams.GUI_WIDTH, ClientParams.GUI_HEIGHT);
 
-        setScreenSize();
         //combinedPanel();
         //frame.add(tabbedPane);
         menuBar();
+        DrawPanel drawPanel = new DrawPanel();
+        ToolBar toolBar = new ToolBar();
+        frame.add(drawPanel, BorderLayout.CENTER);
+        frame.add(toolBar, BorderLayout.WEST);
 
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
-
-    // when start the gui, it will pop up in the middle of the screen
-    private void setScreenSize() {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = (int) ((screenSize.getWidth() - frame.getWidth()) / 2);
-        int y = (int) ((screenSize.getHeight() - frame.getHeight()) / 2);
-        frame.setLocation(x, y);
     }
 
     // set a menu bar
