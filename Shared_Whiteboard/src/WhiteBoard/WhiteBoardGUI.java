@@ -24,10 +24,11 @@ public class WhiteBoardGUI {
         frame.setTitle(ClientParams.GUI_TITLE);
         frame.setSize(ClientParams.GUI_WIDTH, ClientParams.GUI_HEIGHT);
 
-        //combinedPanel();
-        //frame.add(tabbedPane);
+        // set menu bar
         menuBar();
+        // set draw canvas
         DrawPanel drawPanel = new DrawPanel();
+        // set toolbar
         ToolBar toolBar = new ToolBar();
         frame.add(drawPanel, BorderLayout.CENTER);
         frame.add(toolBar, BorderLayout.WEST);
@@ -35,6 +36,10 @@ public class WhiteBoardGUI {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        DrawListener drawListener = new DrawListener(toolBar, drawPanel);
+        drawPanel.addMouseListener(drawListener);
+        drawPanel.addMouseMotionListener(drawListener);
     }
 
     // set a menu bar

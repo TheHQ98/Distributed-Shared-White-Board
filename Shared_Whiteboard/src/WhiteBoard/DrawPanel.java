@@ -15,9 +15,9 @@ public class DrawPanel extends JPanel {
 
     private void init() {
         this.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        this.setBackground(Color.lightGray);
+        this.setBackground(Color.WHITE);
         drawCanvas.setBackground(Color.WHITE);
-        drawCanvas.setPreferredSize(new Dimension(ClientParams.GUI_WIDTH-100, ClientParams.GUI_HEIGHT-100));
+        drawCanvas.setPreferredSize(new Dimension(ClientParams.GUI_WIDTH, ClientParams.GUI_HEIGHT));
         this.add(drawCanvas);
     }
 }
