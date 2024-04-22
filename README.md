@@ -1,9 +1,6 @@
 # Distributed-Shared-White-Board
 COMP90015-2024S1-Assignment2
 
-
-# Distributed-Shared-White-Board
-
 **Phase 1:**
  - [ ] Task A - Implement a client that allows a user to draw all the expected elements.
 	 - [x] Shapes: at least your white board should support for line, circle, oval, and rectangle.
