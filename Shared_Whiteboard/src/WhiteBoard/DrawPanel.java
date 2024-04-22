@@ -5,18 +5,15 @@
 
 package WhiteBoard;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
-import java.io.ByteArrayInputStream;
 
 public class DrawPanel extends JPanel {
     private int x1, y1, x2, y2;
@@ -95,11 +92,7 @@ public class DrawPanel extends JPanel {
             saveCanvas();
 
             if (ClientParams.TEXT.equals(toolType)) {
-                String text = JOptionPane.showInputDialog("Type your text");
-                renderFrame(savedFrame);
-                g2d.setColor(color);
-                g2d.setFont(new Font("Arial", Font.PLAIN, 30));
-                g2d.drawString(text, x1, y1);
+                textInput();
             }
         }
     };
@@ -146,4 +139,32 @@ public class DrawPanel extends JPanel {
             repaint();
         }
     };
+
+    private void textInput() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        JTextField text = new JTextField(10);
+        JLabel textLabel = new JLabel("Type your text");
+        panel.add(textLabel);
+        panel.add(text);
+
+
+        SpinnerNumberModel spinnerModel = new SpinnerNumberModel(30, 10, 50, 5);
+        JSpinner fontSize = new JSpinner(spinnerModel);
+        JLabel fontLabel = new JLabel("Select font size (Default 30):");
+        panel.add(fontLabel);
+        panel.add(fontSize);
+
+        int result = JOptionPane.showConfirmDialog(null, panel,
+                "Type text", JOptionPane.OK_CANCEL_OPTION);
+
+        if (result == JOptionPane.OK_OPTION) {
+            renderFrame(savedFrame);
+            g2d.setColor(color);
+            g2d.setFont(new Font("Arial", Font.PLAIN, (Integer) fontSize.getValue()));
+            g2d.drawString(text.getText(), x1, y1);
+        }
+
+    }
 }
