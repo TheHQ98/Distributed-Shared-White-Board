@@ -20,6 +20,8 @@ public class ClientParams {
     public static final String ICON_DRAW      = "icons/draw.png";
     public static final String ICON_ERASER    = "icons/eraser.png";
     public static final String ICON_TEXT      = "icons/text.png";
+    public static final String ICON_ADD       = "icons/add.png";
+    public static final String ICON_MINUS     = "icons/minus.png";
 
     // toolbar command
     public static final String LINE      = "line";
@@ -33,7 +35,6 @@ public class ClientParams {
     // 20 colors
     public static final Color SILVER = new Color(192, 192, 192);
     public static final Color BLACK = new Color(0, 0, 0);
-    public static final Color WHITE = new Color(255, 255, 255);
     public static final Color RED = new Color(255, 0, 0);
     public static final Color GREEN = new Color(0, 255, 0);
     public static final Color BLUE = new Color(0, 0, 255);
@@ -41,15 +42,12 @@ public class ClientParams {
     public static final Color ORANGE = new Color(255, 165, 0);
     public static final Color PINK = new Color(255, 192, 203);
     public static final Color PURPLE = new Color(128, 0, 128);
-    public static final Color GRAY = new Color(128, 128, 128);
     public static final Color BROWN = new Color(165, 42, 42);
     public static final Color CYAN = new Color(0, 255, 255);
     public static final Color MAGENTA = new Color(255, 0, 255);
     public static final Color LIME = new Color(191, 255, 0);
     public static final Color MAROON = new Color(128, 0, 0);
-    public static final Color OLIVE = new Color(128, 128, 0);
     public static final Color NAVY = new Color(0, 0, 128);
     public static final Color AQUA = new Color(0, 255, 255);
-    public static final Color TEAL = new Color(0, 128, 128);
 
 }

@@ -19,15 +19,10 @@ public class DrawListener extends MouseAdapter {
     private Color color;
     private String toolType;
 
-    private BufferedImage tempImage;
-    private Graphics2D g2dTemp;
-
     public DrawListener(ToolBar toolBar, DrawPanel drawingPanel) {
         g2d = (Graphics2D) drawingPanel.getGraphics();
         this.toolBar = toolBar;
         this.drawingPanel = drawingPanel;
-        tempImage = null;
-        g2dTemp = null;
     }
 
     @Override
