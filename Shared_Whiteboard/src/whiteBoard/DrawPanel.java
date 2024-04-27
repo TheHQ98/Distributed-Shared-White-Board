@@ -3,8 +3,11 @@
  * @date 18 April 2024
  */
 
-package WhiteBoard;
+package whiteBoard;
 
+import remote.IRemoteCanvas;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.Color;
@@ -14,6 +17,9 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class DrawPanel extends JPanel {
     private int x1, y1, x2, y2;
@@ -23,12 +29,16 @@ public class DrawPanel extends JPanel {
     private Graphics2D g2d;
     private BufferedImage frame;
     private BufferedImage savedFrame;
+    private IRemoteCanvas remoteCanvas;
+    private boolean isManager;
 
-    public DrawPanel(ToolBar toolBar) {
+    public DrawPanel(ToolBar toolBar, IRemoteCanvas remoteCanvas, boolean isManager) {
         this.toolBar = toolBar;
-        init();
+        this.remoteCanvas = remoteCanvas;
+        this.isManager = isManager;
         addMouseListener(startListener);
         addMouseMotionListener(motionLister);
+        addMouseListener(endListener);
         setDoubleBuffered(false);
     }
 
@@ -44,9 +54,24 @@ public class DrawPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (frame != null) {
-            g.drawImage(frame, 0, 0, this);
+        if (frame == null) {
+            if (isManager) {
+                init();
+                renderFrame(frame);
+            } else {
+                try {
+                    byte[] imageData = remoteCanvas.updateImage();
+                    frame = ImageIO.read(new ByteArrayInputStream(imageData));
+                    g2d = (Graphics2D) frame.getGraphics();
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2d.setPaint(Color.WHITE);
+                    g2d.setStroke(new BasicStroke(3.0f));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
+        g.drawImage(frame, 0, 0, this);
     }
 
     public void renderFrame(BufferedImage f) {
@@ -131,12 +156,20 @@ public class DrawPanel extends JPanel {
                 g2d.drawLine(x1, y1, x2, y2);
                 x1 = x2;
                 y1 = y2;
+                sendImage();
             } else if (ClientParams.ERASER.equals(toolType)) {
                 g2d.setColor(Color.WHITE);
                 g2d.setStroke(new BasicStroke(toolBar.getEraserSize()));
                 g2d.drawLine(x2, y2, x2, y2);
             }
             repaint();
+        }
+    };
+
+    private final MouseListener endListener = new MouseAdapter() {
+        @Override
+        public void mouseReleased(java.awt.event.MouseEvent e) {
+            //System.out.println("End with: " + x2 + " " + y2);
         }
     };
 
@@ -166,5 +199,20 @@ public class DrawPanel extends JPanel {
             g2d.drawString(text.getText(), x1, y1);
         }
 
+    }
+
+    private byte[] imageToByteArray(BufferedImage image) throws IOException {
+        ByteArrayOutputStream data = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", data);
+        return data.toByteArray();
+    }
+
+    private void sendImage() {
+        try {
+            byte[] imageData = imageToByteArray(frame);
+            remoteCanvas.getImage(imageData);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

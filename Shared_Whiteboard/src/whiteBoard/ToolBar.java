@@ -2,7 +2,7 @@
  * @author Josh Feng, 1266669, chenhaof@student.unimelb.edu.au
  * @date 18 April 2024
  */
-package WhiteBoard;
+package whiteBoard;
 
 import javax.swing.*;
 import java.awt.*;

@@ -3,7 +3,9 @@
  * @date 18 April 2024
  */
 
-package WhiteBoard;
+package whiteBoard;
+
+import remote.IRemoteCanvas;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -21,10 +23,12 @@ public class WhiteBoardGUI {
     private final boolean isManager;
     DrawPanel drawPanel;
     private String filePath;
+    private IRemoteCanvas remoteCanvas;
 
-    public WhiteBoardGUI(String userID, boolean isManager) {
+    public WhiteBoardGUI(String userID, boolean isManager, IRemoteCanvas remoteCanvas) {
         this.userID = userID;
         this.isManager = isManager;
+        this.remoteCanvas = remoteCanvas;
 
         frame = new JFrame();
         frame.setTitle(ClientParams.GUI_TITLE);
@@ -35,17 +39,13 @@ public class WhiteBoardGUI {
         // set toolbar
         ToolBar toolBar = new ToolBar();
         // set draw canvas
-        drawPanel = new DrawPanel(toolBar);
+        drawPanel = new DrawPanel(toolBar, remoteCanvas, isManager);
         frame.add(drawPanel, BorderLayout.CENTER);
         frame.add(toolBar, BorderLayout.SOUTH);
 
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-//        DrawListener drawListener = new DrawListener(toolBar, drawPanel);
-//        drawPanel.addMouseListener(drawListener);
-//        drawPanel.addMouseMotionListener(drawListener);
     }
 
     // set a menu bar

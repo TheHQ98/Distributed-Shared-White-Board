@@ -3,7 +3,7 @@
  * @date 18 April 2024
  */
 
-package WhiteBoard;
+package whiteBoard;
 
 import java.awt.*;
 
