@@ -1,58 +1,72 @@
-/**
- * @author Josh Feng, 1266669, chenhaof@student.unimelb.edu.au
- * @date 27 April 2024
- */
-
 package remote;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.awt.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 public class RemoteCanvas extends UnicastRemoteObject implements IRemoteCanvas {
-    private static BufferedImage frame;
+    private final String toolType;
+    private final Color color;
+    private final Point startPoint;
+    private final Point endPoint;
+    private final String name;
+    private final String text;
+    private final int textSize;
+    private final float eraserSize;
 
-    public RemoteCanvas() throws RemoteException {
+    public RemoteCanvas(String toolType, Color color, Point startPoint, Point endPoint, String name, String text, int textSize, float eraserSize) throws RemoteException {
         super();
+        this.toolType = toolType;
+        this.color = color;
+        this.startPoint = startPoint;
+        this.endPoint = endPoint;
+        this.name = name;
+        this.text = text;
+        this.textSize = textSize;
+        this.eraserSize = eraserSize;
+    }
+
+
+    @Override
+    public String getToolType() throws RemoteException {
+        return toolType;
     }
 
     @Override
-    public byte[] updateImage() throws IOException {
-        if (frame != null) {
-            ByteArrayOutputStream data = new ByteArrayOutputStream();
-            ImageIO.write(frame, "png", data);
-            return data.toByteArray();
+    public Color getColor() throws RemoteException {
+        return color;
+    }
+
+    @Override
+    public Point getStartPoint() throws RemoteException {
+        return startPoint;
+    }
+
+    @Override
+    public Point getEndPoint() throws RemoteException {
+        return endPoint;
+    }
+
+    @Override
+    public String getName() throws RemoteException {
+        return name;
+    }
+
+    @Override
+    public String getText() throws RemoteException {
+        if (text == null) {
+            return "";
         }
-        return null;
+        return text;
     }
 
     @Override
-    public void getImage(byte[] imageData) throws IOException {
-        frame = byteArrayToImage(imageData);
-        //System.out.println("Image received");
-    }
-
-
-    @Override
-    public void printTest(String text) throws RemoteException {
-        System.out.println(text);
+    public Integer getTextSize() throws RemoteException {
+        return textSize;
     }
 
     @Override
-    public byte[] imageToByteArray(BufferedImage image) throws IOException {
-        ByteArrayOutputStream data = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", data);
-        return data.toByteArray();
+    public float getEraserSize() throws RemoteException {
+        return eraserSize;
     }
-
-    @Override
-    public BufferedImage byteArrayToImage(byte[] imageData) throws IOException {
-        ByteArrayInputStream data = new ByteArrayInputStream(imageData);
-        return ImageIO.read(data);
-    }
-
 }

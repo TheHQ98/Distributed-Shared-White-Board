@@ -1,19 +1,16 @@
-/**
- * @author Josh Feng, 1266669, chenhaof@student.unimelb.edu.au
- * @date 27 April 2024
- */
-
 package remote;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.awt.*;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface IRemoteCanvas extends Remote {
-    public byte[] updateImage() throws IOException;
-    public void getImage(byte[] imageData) throws IOException;
-    public void printTest(String text) throws RemoteException;
-    public byte[] imageToByteArray(BufferedImage image) throws IOException;
-    public BufferedImage byteArrayToImage(byte[] imageData) throws IOException;
+    String getToolType() throws RemoteException;
+    Color getColor() throws RemoteException;
+    Point getStartPoint() throws RemoteException;
+    Point getEndPoint() throws RemoteException;
+    String getName() throws RemoteException;
+    String getText() throws RemoteException;
+    Integer getTextSize() throws RemoteException;
+    float getEraserSize() throws RemoteException;
 }
