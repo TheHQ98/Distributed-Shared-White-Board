@@ -10,7 +10,7 @@ public class Server {
             IRemoteServer remoteServer = new RemoteServer();
 
 
-            Registry registry = LocateRegistry.createRegistry(8080);
+            Registry registry = LocateRegistry.createRegistry(Integer.parseInt(args[0]));
             registry.bind("SharedWhiteBoard", remoteServer);
             System.out.println("RMI Ready");
         } catch (Exception e) {

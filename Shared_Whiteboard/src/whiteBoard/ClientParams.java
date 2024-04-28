@@ -13,15 +13,15 @@ public class ClientParams {
     public static final int GUI_HEIGHT   = 720;
 
     // icons path
-    public static final String ICON_LINE      = "icons/line.png";
-    public static final String ICON_CIRCLE    = "icons/circle.png";
-    public static final String ICON_OVAL      = "icons/oval.png";
-    public static final String ICON_RECTANGLE = "icons/rectangle.png";
-    public static final String ICON_DRAW      = "icons/draw.png";
-    public static final String ICON_ERASER    = "icons/eraser.png";
-    public static final String ICON_TEXT      = "icons/text.png";
-    public static final String ICON_ADD       = "icons/add.png";
-    public static final String ICON_MINUS     = "icons/minus.png";
+    public static final String ICON_LINE      = "line.png";
+    public static final String ICON_CIRCLE    = "circle.png";
+    public static final String ICON_OVAL      = "oval.png";
+    public static final String ICON_RECTANGLE = "rectangle.png";
+    public static final String ICON_DRAW      = "draw.png";
+    public static final String ICON_ERASER    = "eraser.png";
+    public static final String ICON_TEXT      = "text.png";
+    public static final String ICON_ADD       = "add.png";
+    public static final String ICON_MINUS     = "minus.png";
 
     // toolbar command
     public static final String LINE      = "line";

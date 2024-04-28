@@ -14,7 +14,7 @@ public class CreateWhiteBoard {
     private static String name = "Manager";
     public static void main(String[] args) {
         try {
-            Registry registry = LocateRegistry.getRegistry("localhost", 8080);
+            Registry registry = LocateRegistry.getRegistry("localhost", Integer.parseInt(args[0]));
 
             IRemoteServer remoteServer = (IRemoteServer) registry.lookup("SharedWhiteBoard");
             IRemoteClient remoteClient = new RemoteClient(name, true, remoteServer);

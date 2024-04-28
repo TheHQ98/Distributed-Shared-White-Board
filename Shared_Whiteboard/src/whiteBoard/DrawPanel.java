@@ -62,7 +62,6 @@ public class DrawPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (frame == null) {
-            System.out.println("HERE");
             if (isManager) {
                 init();
                 renderFrame(frame);
@@ -106,7 +105,6 @@ public class DrawPanel extends JPanel {
     public void updateCanvas(byte[] imageData) throws IOException {
         savedFrame = byteArrayToImage(imageData);
         renderFrame(savedFrame);
-        System.out.println("Should update");
     }
 
     // Get image of the current canvas
@@ -302,7 +300,6 @@ public class DrawPanel extends JPanel {
         } else if (ClientParams.RECTANGLE.equals(remoteCanvas.getToolType())) {
             Point point1 = remoteCanvas.getStartPoint();
             Point point2 = remoteCanvas.getEndPoint();
-            System.out.println(point1.x + " " + point1.y + " " + point2.x + " " + point2.y);
             g2d.setColor(remoteCanvas.getColor());
             g2d.drawRect(Math.min(point1.x, point2.x), Math.min(point1.y, point2.y),
                     Math.abs(point1.x - point2.x), Math.abs(point1.y - point2.y));

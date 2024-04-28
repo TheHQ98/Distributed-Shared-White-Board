@@ -47,7 +47,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         for (IRemoteClient client : userList) {
             if (client.getName().equals(remoteCanvas.getName())) {
             } else {
-                System.out.println("Update: " + client.getName());
+                //System.out.println("Update: " + client.getName());
                 client.syncCanvas(remoteCanvas);
             }
         }
