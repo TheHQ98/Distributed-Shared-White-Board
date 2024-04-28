@@ -18,6 +18,7 @@ public class JoinWhiteBoard {
             IRemoteClient remoteClient = new RemoteClient(args[1], false, remoteServer);
 
             remoteServer.signIn(remoteClient);
+            remoteServer.addUser(args[1]);
             remoteClient.init();
             //new WhiteBoardGUI("user", false, remoteCanvas, remoteUserList);
         } catch (Exception e) {

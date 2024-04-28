@@ -5,7 +5,10 @@
 
 package remote;
 
+import serverGUI.ServerGUI;
+
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -20,10 +23,18 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     private static BufferedImage frame;
     private String managerName;
     private Set<IRemoteClient> userList;
+    private ServerGUI serverGUI;
 
     public RemoteServer() throws RemoteException {
         super();
         this.userList = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                serverGUI = new ServerGUI();
+                serverGUI.init();
+            }
+        });
     }
 
     @Override
@@ -80,11 +91,20 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     @Override
     public void setManagerName(String name) throws RemoteException {
         this.managerName = name;
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                serverGUI.setManagerName(name);
+            }
+        });
     }
 
     @Override
     public void addUser(String name) throws RemoteException {
-
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                serverGUI.updateUserList(name);
+            }
+        });
     }
 
     @Override
