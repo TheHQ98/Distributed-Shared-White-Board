@@ -6,6 +6,8 @@
 package whiteBoard;
 
 import remote.IRemoteCanvas;
+import remote.IRemoteServer;
+import remote.RemoteCanvas;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -20,6 +22,7 @@ import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.rmi.RemoteException;
 
 public class DrawPanel extends JPanel {
     private int x1, y1, x2, y2;
@@ -29,13 +32,17 @@ public class DrawPanel extends JPanel {
     private Graphics2D g2d;
     private BufferedImage frame;
     private BufferedImage savedFrame;
-    private IRemoteCanvas remoteCanvas;
+    private IRemoteServer remoteServer;
     private boolean isManager;
+    private String name;
+    private Point startPoint;
+    private Point endPoint;
 
-    public DrawPanel(ToolBar toolBar, IRemoteCanvas remoteCanvas, boolean isManager) {
+    public DrawPanel(ToolBar toolBar, IRemoteServer remoteServer, boolean isManager, String name) {
         this.toolBar = toolBar;
-        this.remoteCanvas = remoteCanvas;
+        this.remoteServer = remoteServer;
         this.isManager = isManager;
+        this.name = name;
         addMouseListener(startListener);
         addMouseMotionListener(motionLister);
         addMouseListener(endListener);
@@ -55,12 +62,14 @@ public class DrawPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (frame == null) {
+            System.out.println("HERE");
             if (isManager) {
                 init();
                 renderFrame(frame);
+                sendImage();
             } else {
                 try {
-                    byte[] imageData = remoteCanvas.updateImage();
+                    byte[] imageData = remoteServer.updateImage();
                     frame = ImageIO.read(new ByteArrayInputStream(imageData));
                     g2d = (Graphics2D) frame.getGraphics();
                     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -94,6 +103,12 @@ public class DrawPanel extends JPanel {
         savedFrame = new BufferedImage(colorModel, raster, false, null);
     }
 
+    public void updateCanvas(byte[] imageData) throws IOException {
+        savedFrame = byteArrayToImage(imageData);
+        renderFrame(savedFrame);
+        System.out.println("Should update");
+    }
+
     // Get image of the current canvas
     public BufferedImage getCanvasImage() {
         saveCanvas();
@@ -110,6 +125,7 @@ public class DrawPanel extends JPanel {
             // get initial coordinates
             x1 = e.getX();
             y1 = e.getY();
+            startPoint = new Point(x1, y1);
             // get current color
             color = toolBar.getColor();
             // get tool tye
@@ -154,13 +170,34 @@ public class DrawPanel extends JPanel {
             } else if (ClientParams.DRAW.equals(toolType)) {
                 g2d.setColor(color);
                 g2d.drawLine(x1, y1, x2, y2);
+                startPoint = new Point(x1, y1);
+                endPoint = new Point(x2, y2);
                 x1 = x2;
                 y1 = y2;
-                sendImage();
+                try {
+                    RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint, name, null, 0, toolBar.getEraserSize());
+                    remoteServer.getCanvas(remoteCanvas);
+                } catch (RemoteException ex) {
+                    throw new RuntimeException(ex);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             } else if (ClientParams.ERASER.equals(toolType)) {
                 g2d.setColor(Color.WHITE);
                 g2d.setStroke(new BasicStroke(toolBar.getEraserSize()));
-                g2d.drawLine(x2, y2, x2, y2);
+                g2d.drawLine(x1, y1, x2, y2);
+                startPoint = new Point(x1, y1);
+                endPoint = new Point(x2, y2);
+                x1 = x2;
+                y1 = y2;
+                try {
+                    RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint, name, null, 0, toolBar.getEraserSize());
+                    remoteServer.getCanvas(remoteCanvas);
+                } catch (RemoteException ex) {
+                    throw new RuntimeException(ex);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
             repaint();
         }
@@ -169,7 +206,20 @@ public class DrawPanel extends JPanel {
     private final MouseListener endListener = new MouseAdapter() {
         @Override
         public void mouseReleased(java.awt.event.MouseEvent e) {
-            //System.out.println("End with: " + x2 + " " + y2);
+            endPoint = new Point(x2, y2);
+//            System.out.println(startPoint.x + " " + startPoint.y + " " + endPoint.x + " " + endPoint.y);
+//            System.out.println(toolType);
+            try {
+                RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint, name, null, 0, toolBar.getEraserSize());
+                remoteServer.getCanvas(remoteCanvas);
+            } catch (RemoteException ex) {
+                throw new RuntimeException(ex);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            // make sure new client get latest canvas
+            sendImage();
         }
     };
 
@@ -197,6 +247,20 @@ public class DrawPanel extends JPanel {
             g2d.setColor(color);
             g2d.setFont(new Font("Arial", Font.PLAIN, (Integer) fontSize.getValue()));
             g2d.drawString(text.getText(), x1, y1);
+
+            endPoint = new Point(x2, y2);
+            try {
+                RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint,
+                        name, text.getText(), (Integer) fontSize.getValue(), toolBar.getEraserSize());
+                remoteServer.getCanvas(remoteCanvas);
+            } catch (RemoteException ex) {
+                throw new RuntimeException(ex);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            // make sure new client get latest canvas
+            sendImage();
         }
 
     }
@@ -207,12 +271,71 @@ public class DrawPanel extends JPanel {
         return data.toByteArray();
     }
 
+    private BufferedImage byteArrayToImage(byte[] imageData) throws IOException {
+        ByteArrayInputStream data = new ByteArrayInputStream(imageData);
+        return ImageIO.read(data);
+    }
+
     private void sendImage() {
         try {
             byte[] imageData = imageToByteArray(frame);
-            remoteCanvas.getImage(imageData);
+            remoteServer.getImage(imageData, name);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    public void syncCanvas(IRemoteCanvas remoteCanvas) throws RemoteException {
+        g2d.setStroke(new BasicStroke(3.0f));
+        if (ClientParams.DRAW.equals(remoteCanvas.getToolType())) {
+            g2d.setColor(remoteCanvas.getColor());
+            Point point1 = remoteCanvas.getStartPoint();
+            Point point2 = remoteCanvas.getEndPoint();
+            g2d.drawLine(point1.x, point1.y, point2.x, point2.y);
+            point1.x = point2.x;
+            point1.y = point2.y;
+        } else if (ClientParams.LINE.equals(remoteCanvas.getToolType())) {
+            Point point1 = remoteCanvas.getStartPoint();
+            Point point2 = remoteCanvas.getEndPoint();
+            g2d.setColor(remoteCanvas.getColor());
+            g2d.drawLine(point1.x, point1.y, point2.x, point2.y);
+        } else if (ClientParams.RECTANGLE.equals(remoteCanvas.getToolType())) {
+            Point point1 = remoteCanvas.getStartPoint();
+            Point point2 = remoteCanvas.getEndPoint();
+            System.out.println(point1.x + " " + point1.y + " " + point2.x + " " + point2.y);
+            g2d.setColor(remoteCanvas.getColor());
+            g2d.drawRect(Math.min(point1.x, point2.x), Math.min(point1.y, point2.y),
+                    Math.abs(point1.x - point2.x), Math.abs(point1.y - point2.y));
+        } else if (ClientParams.CIRCLE.equals(remoteCanvas.getToolType())) {
+            Point point1 = remoteCanvas.getStartPoint();
+            Point point2 = remoteCanvas.getEndPoint();
+            g2d.setColor(remoteCanvas.getColor());
+            int radius = (int) Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2)) / 2;
+            int centerX = (point1.x + point2.x) / 2;
+            int centerY = (point1.y + point2.y) / 2;
+            int startX = centerX - radius;
+            int startY = centerY - radius;
+            g2d.drawOval(startX, startY, radius * 2, radius * 2);
+        } else if (ClientParams.OVAL.equals(remoteCanvas.getToolType())) {
+            Point point1 = remoteCanvas.getStartPoint();
+            Point point2 = remoteCanvas.getEndPoint();
+            g2d.setColor(remoteCanvas.getColor());
+            g2d.drawOval(Math.min(point1.x, point2.x), Math.min(point1.y, point2.y),
+                    Math.abs(point1.x - point2.x), Math.abs(point1.y - point2.y));
+        } else if (ClientParams.TEXT.equals(remoteCanvas.getToolType())) {
+            Point point = remoteCanvas.getStartPoint();
+            g2d.setColor(remoteCanvas.getColor());
+            g2d.setFont(new Font("Arial", Font.PLAIN, remoteCanvas.getTextSize()));
+            g2d.drawString(remoteCanvas.getText(), point.x, point.y);
+        } else if (ClientParams.ERASER.equals(remoteCanvas.getToolType())) {
+            g2d.setColor(Color.WHITE);
+            g2d.setStroke(new BasicStroke(remoteCanvas.getEraserSize()));
+            Point point1 = remoteCanvas.getStartPoint();
+            Point point2 = remoteCanvas.getEndPoint();
+            g2d.drawLine(point1.x, point1.y, point2.x, point2.y);
+            point1.x = point2.x;
+            point1.y = point2.y;
+        }
+        repaint();
     }
 }

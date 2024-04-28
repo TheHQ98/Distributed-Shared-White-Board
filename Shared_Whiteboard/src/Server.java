@@ -1,5 +1,5 @@
-import remote.IRemoteCanvas;
-import remote.RemoteCanvas;
+import remote.IRemoteServer;
+import remote.RemoteServer;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -7,11 +7,12 @@ import java.rmi.registry.Registry;
 public class Server {
     public static void main(String[] args) {
         try {
-            IRemoteCanvas remoteCanvas = new RemoteCanvas();
+            IRemoteServer remoteServer = new RemoteServer();
+
 
             Registry registry = LocateRegistry.createRegistry(8080);
-            registry.bind("SharedWhiteBoard", remoteCanvas);
-            System.out.println("SharedWhiteBoard started");
+            registry.bind("SharedWhiteBoard", remoteServer);
+            System.out.println("RMI Ready");
         } catch (Exception e) {
             e.printStackTrace();
         }
