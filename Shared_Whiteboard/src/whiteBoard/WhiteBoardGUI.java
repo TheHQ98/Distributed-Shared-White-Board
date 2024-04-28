@@ -3,7 +3,11 @@
  * @date 18 April 2024
  */
 
-package WhiteBoard;
+package whiteBoard;
+
+import remote.IRemoteCanvas;
+import remote.IRemoteServer;
+import remote.RemoteCanvas;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -14,6 +18,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.rmi.RemoteException;
 
 public class WhiteBoardGUI {
     private JFrame frame;
@@ -21,10 +26,12 @@ public class WhiteBoardGUI {
     private final boolean isManager;
     DrawPanel drawPanel;
     private String filePath;
+    private IRemoteServer remoteServer;
 
-    public WhiteBoardGUI(String userID, boolean isManager) {
+    public WhiteBoardGUI(String userID, boolean isManager, IRemoteServer remoteServer) {
         this.userID = userID;
         this.isManager = isManager;
+        this.remoteServer = remoteServer;
 
         frame = new JFrame();
         frame.setTitle(ClientParams.GUI_TITLE);
@@ -35,17 +42,13 @@ public class WhiteBoardGUI {
         // set toolbar
         ToolBar toolBar = new ToolBar();
         // set draw canvas
-        drawPanel = new DrawPanel(toolBar);
+        drawPanel = new DrawPanel(toolBar, remoteServer, isManager, userID);
         frame.add(drawPanel, BorderLayout.CENTER);
         frame.add(toolBar, BorderLayout.SOUTH);
 
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-//        DrawListener drawListener = new DrawListener(toolBar, drawPanel);
-//        drawPanel.addMouseListener(drawListener);
-//        drawPanel.addMouseMotionListener(drawListener);
     }
 
     // set a menu bar
@@ -105,7 +108,11 @@ public class WhiteBoardGUI {
         closeItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // process
-                JOptionPane.showMessageDialog(null, "Close File");
+                try {
+                    close();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
         fileMenu.add(closeItem);
@@ -163,5 +170,17 @@ public class WhiteBoardGUI {
                 throw new RuntimeException(ex);
             }
         }
+    }
+
+    private void close() throws IOException {
+        remoteServer.getManagerName();
+        remoteServer.getUserList(userID);
+    }
+
+    public void updateCanvas(IRemoteCanvas imageData) throws IOException {
+    }
+
+    public void syncCanvas(IRemoteCanvas remoteCanvas) throws RemoteException {
+        drawPanel.syncCanvas(remoteCanvas);
     }
 }
