@@ -58,4 +58,9 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
         whiteBoardGUI.askUpdateList();
     }
 
+    @Override
+    public void askJoinMessage() throws IOException {
+        whiteBoardGUI.askJoinMessage();
+    }
+
 }

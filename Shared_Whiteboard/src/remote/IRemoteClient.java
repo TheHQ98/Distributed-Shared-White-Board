@@ -14,4 +14,5 @@ public interface IRemoteClient extends Remote {
     void askQuit(String managerName) throws RemoteException;
     void syncList(DefaultListModel<String> tempModel) throws RemoteException;
     void askUpdateList() throws RemoteException;
+    void askJoinMessage() throws IOException;
 }

@@ -6,6 +6,7 @@
 import remote.IRemoteClient;
 import remote.RemoteClient;
 import remote.IRemoteServer;
+import whiteBoard.ClientParams;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -25,6 +26,7 @@ public class CreateWhiteBoard {
             //new WhiteBoardGUI("admin", true, remoteServer, remoteUserList);
             System.out.println("Client connected to server");
             remoteClient.askUpdateList();
+            remoteClient.askJoinMessage();
         } catch (Exception e) {
             System.out.println("Client exception: " + e.getMessage());
             e.printStackTrace();

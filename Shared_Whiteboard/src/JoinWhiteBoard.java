@@ -22,6 +22,7 @@ public class JoinWhiteBoard {
             remoteClient.init();
             System.out.println("Client connected to server");
             remoteClient.askUpdateList();
+            remoteClient.askJoinMessage();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -35,7 +35,7 @@ public class WhiteBoardGUI {
         this.isManager = isManager;
 
         frame = new JFrame();
-        frame.setTitle(ClientParams.GUI_TITLE);
+        frame.setTitle(ClientParams.GUI_TITLE + userID);
         frame.setSize(ClientParams.GUI_WIDTH, ClientParams.GUI_HEIGHT);
 
         // set menu bar
@@ -242,5 +242,9 @@ public class WhiteBoardGUI {
 
     public void askUpdateList() throws RemoteException {
         chatBox.updateUserList();
+    }
+
+    public void askJoinMessage() throws IOException {
+        chatBox.joinMessage();
     }
 }

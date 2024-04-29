@@ -1,8 +1,12 @@
 package serverGUI;
 
+import remote.RemoteServer;
+
 import javax.swing.*;
 import javax.swing.JPanel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class ServerGUI extends JFrame {
     private JList<String> managerList;
@@ -34,6 +38,44 @@ public class ServerGUI extends JFrame {
         JScrollPane userScrollPane = new JScrollPane(userList);
         JLabel userLabel = new JLabel("Users");
         userLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // 将标签居中对齐
+
+        managerList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                // 获取点击的是哪个 JList
+                JList list = (JList)evt.getSource();
+
+                // 双击鼠标检测
+                if (evt.getClickCount() == 2) {
+                    // 获取鼠标双击的项目的索引
+                    int index = list.locationToIndex(evt.getPoint());
+
+                    // 获取该索引处的元素
+                    String item = (String)list.getModel().getElementAt(index);
+
+                    // 输出选中的元素
+                    System.out.println("Clicked on: " + item);
+                }
+            }
+        });
+
+        userList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                // 获取点击的是哪个 JList
+                JList list = (JList)evt.getSource();
+
+                // 双击鼠标检测
+                if (evt.getClickCount() == 2) {
+                    // 获取鼠标双击的项目的索引
+                    int index = list.locationToIndex(evt.getPoint());
+
+                    // 获取该索引处的元素
+                    String item = (String)list.getModel().getElementAt(index);
+
+                    // 输出选中的元素
+                    System.out.println("Clicked on: " + item);
+                }
+            }
+        });
 
         // 设置首选高度为30像素
         managerScrollPane.setPreferredSize(new Dimension(Integer.MAX_VALUE, 30));

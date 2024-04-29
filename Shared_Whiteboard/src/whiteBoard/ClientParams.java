@@ -8,7 +8,7 @@ package whiteBoard;
 import java.awt.*;
 
 public class ClientParams {
-    public static final String GUI_TITLE = "White Board";
+    public static final String GUI_TITLE = "White Board - ";
     public static final int GUI_WIDTH    = 1280;
     public static final int GUI_HEIGHT   = 720;
 

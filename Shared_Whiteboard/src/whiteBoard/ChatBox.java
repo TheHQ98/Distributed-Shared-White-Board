@@ -4,6 +4,8 @@ import remote.IRemoteServer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
@@ -44,6 +46,34 @@ public class ChatBox extends JPanel {
         userList = new JList<>(userModel);
         JScrollPane userListScrollPane = new JScrollPane(userList);
         userListScrollPane.setPreferredSize(new Dimension(200, 200)); // 设置用户列表首选尺寸
+
+        if (isManager) {
+            userList.addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent evt) {
+                    // 获取点击的是哪个 JList
+                    JList list = (JList)evt.getSource();
+
+                    // 双击鼠标检测
+                    if (evt.getClickCount() == 2) {
+                        // 获取鼠标双击的项目的索引
+                        int index = list.locationToIndex(evt.getPoint());
+
+                        // 获取该索引处的元素
+                        String name = (String)list.getModel().getElementAt(index);
+                        if (!name.equals(userID)) {
+                            // 输出选中的元素
+                            System.out.println("Clicked on: " + name);
+                            try {
+                                askQuit(name);
+                            } catch (RemoteException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+
+                    }
+                }
+            });
+        }
 
         // 聊天区域的初始化
         chatArea = new JTextArea();
@@ -131,7 +161,7 @@ public class ChatBox extends JPanel {
         remoteServer.broadcastJoinMessage(message);
     }
 
-    private void joinMessage() throws IOException {
+    public void joinMessage() throws IOException {
         broadcastJoinMessage(getCurrentTime() + userID + " joined");
     }
 
@@ -143,6 +173,10 @@ public class ChatBox extends JPanel {
                 userModel.addElement(tempModel.getElementAt(i));
             }
         });
+    }
+
+    private void askQuit(String name) throws RemoteException {
+        remoteServer.askQuit(name);
     }
 }
 

@@ -28,4 +28,5 @@ public interface IRemoteServer extends Remote {
     void broadcastMessage(String message, String name) throws IOException;
     void broadcastJoinMessage(String message) throws IOException;
     void updateList() throws RemoteException;
+    void askQuit(String name) throws RemoteException;
 }
