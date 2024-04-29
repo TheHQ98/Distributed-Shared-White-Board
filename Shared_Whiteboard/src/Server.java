@@ -6,7 +6,15 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class Server {
-    public static void main(String[] args) {
+    private final String[] args;
+
+
+    public Server(String[] args) {
+        this.args = args;
+    }
+
+
+    public void start() {
         try {
             IRemoteServer remoteServer = new RemoteServer();
 

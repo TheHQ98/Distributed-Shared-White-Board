@@ -14,6 +14,11 @@ import java.rmi.registry.Registry;
 public class CreateWhiteBoard {
     private static String name = "Manager";
     public static void main(String[] args) {
+        // Start server
+        Server server = new Server(args);
+        server.start();
+
+        // Start Manager Whiteboard
         try {
             Registry registry = LocateRegistry.getRegistry("localhost", Integer.parseInt(args[0]));
 
@@ -27,6 +32,7 @@ public class CreateWhiteBoard {
             System.out.println("Client connected to server");
             remoteClient.askUpdateList();
             remoteClient.askJoinMessage();
+            System.out.println("Manager Whiteboard ready");
         } catch (Exception e) {
             System.out.println("Client exception: " + e.getMessage());
             e.printStackTrace();
