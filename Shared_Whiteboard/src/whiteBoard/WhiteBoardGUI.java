@@ -15,6 +15,8 @@ import javax.swing.JMenuBar;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -26,12 +28,10 @@ public class WhiteBoardGUI {
     private final boolean isManager;
     DrawPanel drawPanel;
     private String filePath;
-    private IRemoteServer remoteServer;
 
     public WhiteBoardGUI(String userID, boolean isManager, IRemoteServer remoteServer) {
         this.userID = userID;
         this.isManager = isManager;
-        this.remoteServer = remoteServer;
 
         frame = new JFrame();
         frame.setTitle(ClientParams.GUI_TITLE);
@@ -46,9 +46,48 @@ public class WhiteBoardGUI {
         frame.add(drawPanel, BorderLayout.CENTER);
         frame.add(toolBar, BorderLayout.SOUTH);
 
+        // set chat box
+        ChatBox chatBox = new ChatBox(remoteServer, userID, isManager);
+        frame.add(chatBox, BorderLayout.EAST);
+
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we) {
+                int result = JOptionPane.showConfirmDialog(
+                        frame,
+                        "Are you sure you want to exit?",
+                        "Exit Confirmation",
+                        JOptionPane.YES_NO_OPTION
+                );
+                if (result == JOptionPane.YES_OPTION) {
+                    // 如果是管理者，可以在这里添加离开时的逻辑，比如通知服务器等
+                    if (isManager) {
+                        // TODO: 添加管理者离开时的代码
+                        System.out.println("Manager left the room.");
+                        try {
+                            remoteServer.managerLeave();
+                        } catch (RemoteException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        System.out.println( userID+ " left the room.");
+                        try {
+                            remoteServer.removeUser(userID);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    // 现在安全退出程序
+                    frame.dispose(); // 关闭窗口
+                    System.exit(0);  // 完全结束程序
+                }
+            }
+        });
+
     }
 
     // set a menu bar
@@ -126,6 +165,7 @@ public class WhiteBoardGUI {
                         "The exist canvas will be delete.", "Warning", JOptionPane.YES_NO_OPTION);
         if (answer == JOptionPane.YES_OPTION) {
             drawPanel.cleanCanvas();
+            //TODO
         }
     }
 
@@ -159,6 +199,7 @@ public class WhiteBoardGUI {
             }
         }
     }
+
     private void saveAs() {
         FileDialog fileDialog = new FileDialog(frame, "Save As", FileDialog.SAVE);
         fileDialog.setVisible(true);
@@ -173,11 +214,7 @@ public class WhiteBoardGUI {
     }
 
     private void close() throws IOException {
-        remoteServer.getManagerName();
-        remoteServer.getUserList(userID);
-    }
-
-    public void updateCanvas(IRemoteCanvas imageData) throws IOException {
+        //TODO
     }
 
     public void syncCanvas(IRemoteCanvas remoteCanvas) throws RemoteException {

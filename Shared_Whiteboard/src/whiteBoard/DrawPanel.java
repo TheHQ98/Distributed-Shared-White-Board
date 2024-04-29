@@ -50,7 +50,7 @@ public class DrawPanel extends JPanel {
     }
 
     private void init() {
-        frame = new BufferedImage(ClientParams.GUI_WIDTH, ClientParams.GUI_HEIGHT, BufferedImage.TYPE_INT_RGB);
+        frame = new BufferedImage(ClientParams.GUI_WIDTH-211, ClientParams.GUI_HEIGHT-122, BufferedImage.TYPE_INT_RGB);
         g2d = (Graphics2D) frame.getGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setPaint(Color.WHITE);
@@ -274,7 +274,7 @@ public class DrawPanel extends JPanel {
         return ImageIO.read(data);
     }
 
-    private void sendImage() {
+    public void sendImage() {
         try {
             byte[] imageData = imageToByteArray(frame);
             remoteServer.getImage(imageData, name);

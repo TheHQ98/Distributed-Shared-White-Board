@@ -109,7 +109,18 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 
     @Override
     public void removeUser(String name) throws RemoteException {
-
+        System.out.println(name + " request leave.");
+        for (IRemoteClient client : userList) {
+            if (client.getName().equals(name)) {
+                userList.remove(client);
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        serverGUI.removeUser(name);
+                    }
+                });
+                break;
+            }
+        }
     }
 
     @Override
@@ -133,6 +144,38 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
             if (client.getName().equals(name)) {
             } else {
                 client.updateCanvas(null);
+            }
+        }
+    }
+
+    @Override
+    public void managerLeave() throws RemoteException {
+        for (IRemoteClient client : userList) {
+            if (client.getName().equals(managerName)) {
+            } else {
+                System.out.println("Remove: " + client.getName());
+                userList.remove(client);
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        try {
+                            serverGUI.removeUser(client.getName());
+                        } catch (RemoteException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+                // TODO: Ask them quiet app
+            }
+        }
+
+        for (IRemoteClient client : userList) {
+            if (client.getName().equals(managerName)) {
+                userList.remove(client);
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        serverGUI.removeManager(managerName);
+                    }
+                });
             }
         }
     }

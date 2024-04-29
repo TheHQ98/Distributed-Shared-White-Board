@@ -71,4 +71,12 @@ public class ServerGUI extends JFrame {
     public void updateUserList(String user) {
         userModel.addElement(user);
     }
+
+    public void removeUser(String user) {
+        userModel.removeElement(user);
+    }
+
+    public void removeManager(String manager) {
+        managerModel.removeElement(manager);
+    }
 }
