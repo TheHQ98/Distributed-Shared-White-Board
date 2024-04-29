@@ -61,13 +61,16 @@ public class ChatBox extends JPanel {
                         // 获取该索引处的元素
                         String name = (String)list.getModel().getElementAt(index);
                         if (!name.equals(userID)) {
-                            // 输出选中的元素
-                            System.out.println("Clicked on: " + name);
-                            try {
-                                askQuit(name);
-                            } catch (RemoteException e) {
-                                throw new RuntimeException(e);
+                            if(JOptionPane.showConfirmDialog(null,
+                                    "Are you sure you want to kick " + userID + " out?",
+                                    "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                                try {
+                                    askQuit(name);
+                                } catch (RemoteException e) {
+                                    throw new RuntimeException(e);
+                                }
                             }
+
                         }
 
                     }
@@ -158,25 +161,27 @@ public class ChatBox extends JPanel {
     }
 
     public void broadcastJoinMessage(String message) throws IOException {
-        remoteServer.broadcastJoinMessage(message);
+        remoteServer.broadcastSystemMessage(message);
     }
 
     public void joinMessage() throws IOException {
-        broadcastJoinMessage(getCurrentTime() + userID + " joined");
+        broadcastJoinMessage("SYSTEM: " + userID + " joined");
     }
 
     public void syncList(DefaultListModel<String> tempModel) {
-        System.out.println(tempModel);
         SwingUtilities.invokeLater(() -> {
             userModel.clear();
             for (int i = 0; i < tempModel.getSize(); i++) {
                 userModel.addElement(tempModel.getElementAt(i));
             }
+            userList.revalidate();
+            userList.repaint();
         });
     }
 
     private void askQuit(String name) throws RemoteException {
         remoteServer.askQuit(name);
+        userModel.removeElement(name);
     }
 }
 

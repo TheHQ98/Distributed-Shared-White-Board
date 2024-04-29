@@ -68,7 +68,6 @@ public class WhiteBoardGUI {
                 if (result == JOptionPane.YES_OPTION) {
                     // 如果是管理者，可以在这里添加离开时的逻辑，比如通知服务器等
                     if (isManager) {
-                        // TODO: 添加管理者离开时的代码
                         System.out.println("Manager left the room.");
                         try {
                             remoteServer.managerLeave();
@@ -76,17 +75,18 @@ public class WhiteBoardGUI {
                             throw new RuntimeException(e);
                         }
                     } else {
-                        System.out.println( userID+ " left the room.");
+                        System.out.println(userID + " left the room.");
                         try {
                             remoteServer.removeUser(userID);
                         } catch (RemoteException e) {
                             e.printStackTrace();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
                         }
                     }
 
-                    // 现在安全退出程序
-                    frame.dispose(); // 关闭窗口
-                    System.exit(0);  // 完全结束程序
+                    frame.dispose();
+                    System.exit(0);
                 }
             }
         });

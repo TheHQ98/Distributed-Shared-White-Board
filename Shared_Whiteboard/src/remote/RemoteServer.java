@@ -111,19 +111,17 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     }
 
     @Override
-    public void removeUser(String name) throws RemoteException {
+    public void removeUser(String name) throws IOException {
         System.out.println(name + " request leave.");
         for (IRemoteClient client : userList) {
             if (client.getName().equals(name)) {
                 userList.remove(client);
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        serverGUI.removeUser(name);
-                    }
-                });
+                serverGUI.removeUser(name);
                 break;
             }
         }
+        updateList();
+        broadcastSystemMessage("SYSTEM: " + name  + " has left.");
     }
 
     @Override
@@ -195,7 +193,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     }
 
     @Override
-    public void broadcastJoinMessage(String message) throws IOException {
+    public void broadcastSystemMessage(String message) throws IOException {
         for (IRemoteClient client : userList) {
             client.syncMessage(message);
         }
@@ -204,7 +202,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     @Override
     public void updateList() throws RemoteException {
         DefaultListModel<String> tempModel = serverGUI.getList();
-        System.out.println(tempModel);
+        //System.out.println(tempModel);
         for (IRemoteClient client : userList) {
             client.syncList(tempModel);
         }
@@ -216,20 +214,15 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
             if (client.getName().equals(name)) {
                 System.out.println("Remove: " + client.getName());
                 userList.remove(client);
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        try {
-                            serverGUI.removeUser(client.getName());
-                        } catch (RemoteException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
+                try {
+                    serverGUI.removeUser(client.getName());
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
                 client.askQuit(managerName);
             }
         }
-
-        updateList(); //TODO 有bug 列表不会实时显示
+        updateList(); //TODO 有bug 列表不会实时显示 -- 已修复需要更多验证
     }
 
 }

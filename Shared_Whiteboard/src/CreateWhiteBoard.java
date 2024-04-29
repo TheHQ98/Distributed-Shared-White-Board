@@ -28,7 +28,6 @@ public class CreateWhiteBoard {
             remoteServer.setManagerName(name);
             remoteServer.signIn(remoteClient);
             remoteClient.init();
-            //new WhiteBoardGUI("admin", true, remoteServer, remoteUserList);
             System.out.println("Client connected to server");
             remoteClient.askUpdateList();
             remoteClient.askJoinMessage();
