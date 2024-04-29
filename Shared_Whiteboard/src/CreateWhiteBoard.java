@@ -24,6 +24,7 @@ public class CreateWhiteBoard {
             remoteClient.init();
             //new WhiteBoardGUI("admin", true, remoteServer, remoteUserList);
             System.out.println("Client connected to server");
+            remoteClient.askUpdateList();
         } catch (Exception e) {
             System.out.println("Client exception: " + e.getMessage());
             e.printStackTrace();

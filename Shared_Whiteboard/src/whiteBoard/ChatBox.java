@@ -4,6 +4,8 @@ import remote.IRemoteServer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -17,14 +19,21 @@ public class ChatBox extends JPanel {
     private final String userID;
     private final boolean isManager;
 
-    public ChatBox(IRemoteServer remoteServer, String userID, boolean isManager) {
+    public ChatBox(IRemoteServer remoteServer, String userID, boolean isManager) throws IOException {
         this.remoteServer = remoteServer;
         this.userID = userID;
         this.isManager = isManager;
 
         init();
-        appendMessage(getCurrentTime() + userID + " joined");
-        updateUserList(userID);
+
+//        updateUserList(userID);
+//        SwingUtilities.invokeLater(() -> {
+//            try {
+//                joinMessage();
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
     }
 
     public void init() {
@@ -48,7 +57,13 @@ public class ChatBox extends JPanel {
         submitButton = new JButton("Enter");
         submitButton.setPreferredSize(new Dimension(50, 10));
 
-        submitButton.addActionListener(e -> sendMessage());
+        submitButton.addActionListener(e -> {
+            try {
+                sendMessage();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         chatInputPanel.setLayout(new BorderLayout());
         chatInputPanel.add(chatInputField, BorderLayout.CENTER);
@@ -79,8 +94,9 @@ public class ChatBox extends JPanel {
 
 
     // 更新用户列表的方法
-    public void updateUserList(String user) {
-        userModel.addElement(user);
+    public void updateUserList() throws RemoteException {
+//        userModel.addElement(user);
+        remoteServer.updateList();
     }
 
     // 添加消息到聊天区域的方法
@@ -93,13 +109,40 @@ public class ChatBox extends JPanel {
         return formatter.format(new Date()) + ": ";
     }
 
-    public void sendMessage() {
+    private void sendMessage() throws IOException {
         String message = chatInputField.getText();
         if (!message.isEmpty()) {
-            appendMessage(getCurrentTime() + userID + ": " + message);
+            broadcastMessage(message);
             chatInputField.setText("");
         }
     }
 
+    public void broadcastMessage(String message) throws IOException {
+        remoteServer.broadcastMessage(message, userID);
+    }
+
+    public void syncMessage(String message) {
+        SwingUtilities.invokeLater(() -> {
+            appendMessage(message);
+        });
+    }
+
+    public void broadcastJoinMessage(String message) throws IOException {
+        remoteServer.broadcastJoinMessage(message);
+    }
+
+    private void joinMessage() throws IOException {
+        broadcastJoinMessage(getCurrentTime() + userID + " joined");
+    }
+
+    public void syncList(DefaultListModel<String> tempModel) {
+        System.out.println(tempModel);
+        SwingUtilities.invokeLater(() -> {
+            userModel.clear();
+            for (int i = 0; i < tempModel.getSize(); i++) {
+                userModel.addElement(tempModel.getElementAt(i));
+            }
+        });
+    }
 }
 

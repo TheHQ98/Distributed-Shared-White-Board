@@ -28,8 +28,9 @@ public class WhiteBoardGUI {
     private final boolean isManager;
     DrawPanel drawPanel;
     private String filePath;
+    private ChatBox chatBox;
 
-    public WhiteBoardGUI(String userID, boolean isManager, IRemoteServer remoteServer) {
+    public WhiteBoardGUI(String userID, boolean isManager, IRemoteServer remoteServer) throws IOException {
         this.userID = userID;
         this.isManager = isManager;
 
@@ -47,7 +48,7 @@ public class WhiteBoardGUI {
         frame.add(toolBar, BorderLayout.SOUTH);
 
         // set chat box
-        ChatBox chatBox = new ChatBox(remoteServer, userID, isManager);
+        chatBox = new ChatBox(remoteServer, userID, isManager);
         frame.add(chatBox, BorderLayout.EAST);
 
         frame.setLocationRelativeTo(null);
@@ -58,7 +59,9 @@ public class WhiteBoardGUI {
             public void windowClosing(WindowEvent we) {
                 int result = JOptionPane.showConfirmDialog(
                         frame,
-                        "Are you sure you want to exit?",
+                        "Are you sure you want to exit? \n" +
+                                "Make sure you save your canvas as a file\n" +
+                                "Other user will be close automatically",
                         "Exit Confirmation",
                         JOptionPane.YES_NO_OPTION
                 );
@@ -219,5 +222,25 @@ public class WhiteBoardGUI {
 
     public void syncCanvas(IRemoteCanvas remoteCanvas) throws RemoteException {
         drawPanel.syncCanvas(remoteCanvas);
+    }
+
+    public void syncMessage(String message) {
+        chatBox.syncMessage(message);
+    }
+
+    public void askQuit(String managerName) {
+        SwingUtilities.invokeLater(() -> {
+            JOptionPane.showMessageDialog(frame, "Manager(" + managerName + ") has shut down. whiteboard will be close", "Message from manager", JOptionPane.WARNING_MESSAGE);
+            frame.dispose();
+            System.exit(0);
+        });
+    }
+
+    public void syncList(DefaultListModel<String> tempModel) {
+        chatBox.syncList(tempModel);
+    }
+
+    public void askUpdateList() throws RemoteException {
+        chatBox.updateUserList();
     }
 }

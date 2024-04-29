@@ -20,7 +20,8 @@ public class JoinWhiteBoard {
             remoteServer.signIn(remoteClient);
             remoteServer.addUser(args[1]);
             remoteClient.init();
-            //new WhiteBoardGUI("user", false, remoteCanvas, remoteUserList);
+            System.out.println("Client connected to server");
+            remoteClient.askUpdateList();
         } catch (Exception e) {
             e.printStackTrace();
         }

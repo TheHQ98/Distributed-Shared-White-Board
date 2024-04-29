@@ -25,4 +25,7 @@ public interface IRemoteServer extends Remote {
     void getUserList(String name) throws IOException;
     void syncCanvas(byte[] imageData, String name) throws IOException;
     void managerLeave() throws RemoteException;
+    void broadcastMessage(String message, String name) throws IOException;
+    void broadcastJoinMessage(String message) throws IOException;
+    void updateList() throws RemoteException;
 }

@@ -79,4 +79,21 @@ public class ServerGUI extends JFrame {
     public void removeManager(String manager) {
         managerModel.removeElement(manager);
     }
+
+    public DefaultListModel<String> getList() {
+        DefaultListModel<String> tempModel = new DefaultListModel<>();
+
+        // 添加 managerModel 的所有元素
+        for (int i = 0; i < managerModel.size(); i++) {
+            tempModel.addElement(managerModel.get(i));
+        }
+
+        // 添加 userModel 的所有元素
+        for (int i = 0; i < userModel.size(); i++) {
+            tempModel.addElement(userModel.get(i));
+        }
+        System.out.println(tempModel.size());
+        return tempModel;
+    }
+
 }

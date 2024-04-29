@@ -91,6 +91,9 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     @Override
     public void setManagerName(String name) throws RemoteException {
         this.managerName = name;
+        for (IRemoteClient client : userList) {
+            System.out.println(client.getName());
+        }
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 serverGUI.setManagerName(name);
@@ -164,7 +167,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
                         }
                     }
                 });
-                // TODO: Ask them quiet app
+                client.askQuit(managerName);
             }
         }
 
@@ -177,6 +180,33 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
                     }
                 });
             }
+        }
+    }
+
+    @Override
+    public void broadcastMessage(String message, String name) throws IOException {
+        for (IRemoteClient client : userList) {
+            if (client.getName().equals(name)) {
+                client.syncMessage("You: " + message);
+            } else {
+                client.syncMessage(name + ": " + message);
+            }
+        }
+    }
+
+    @Override
+    public void broadcastJoinMessage(String message) throws IOException {
+        for (IRemoteClient client : userList) {
+            client.syncMessage(message);
+        }
+    }
+
+    @Override
+    public void updateList() throws RemoteException {
+        DefaultListModel<String> tempModel = serverGUI.getList();
+        System.out.println(tempModel);
+        for (IRemoteClient client : userList) {
+            client.syncList(tempModel);
         }
     }
 
