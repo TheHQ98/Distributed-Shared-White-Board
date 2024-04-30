@@ -62,7 +62,7 @@ public class ChatBox extends JPanel {
                         String name = (String)list.getModel().getElementAt(index);
                         if (!name.equals(userID)) {
                             if(JOptionPane.showConfirmDialog(null,
-                                    "Are you sure you want to kick " + userID + " out?",
+                                    "Are you sure you want to kick " + name + " out?",
                                     "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                                 try {
                                     askQuit(name);
@@ -135,11 +135,6 @@ public class ChatBox extends JPanel {
     // 添加消息到聊天区域的方法
     public void appendMessage(String message) {
         chatArea.append(message + "\n");
-    }
-
-    private String getCurrentTime() {
-        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
-        return formatter.format(new Date()) + ": ";
     }
 
     private void sendMessage() throws IOException {

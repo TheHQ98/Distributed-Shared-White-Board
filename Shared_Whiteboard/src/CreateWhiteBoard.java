@@ -6,7 +6,7 @@
 import remote.IRemoteClient;
 import remote.RemoteClient;
 import remote.IRemoteServer;
-import whiteBoard.ClientParams;
+import server.Server;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;

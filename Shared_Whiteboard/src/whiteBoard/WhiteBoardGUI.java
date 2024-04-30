@@ -66,7 +66,6 @@ public class WhiteBoardGUI {
                         JOptionPane.YES_NO_OPTION
                 );
                 if (result == JOptionPane.YES_OPTION) {
-                    // 如果是管理者，可以在这里添加离开时的逻辑，比如通知服务器等
                     if (isManager) {
                         System.out.println("Manager left the room.");
                         try {
@@ -230,7 +229,7 @@ public class WhiteBoardGUI {
 
     public void askQuit(String managerName) {
         SwingUtilities.invokeLater(() -> {
-            JOptionPane.showMessageDialog(frame, "Manager(" + managerName + ") has shut down. whiteboard will be close", "Message from manager", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Manager(" + managerName + ") closed your access. whiteboard will be close", "Message from manager", JOptionPane.WARNING_MESSAGE);
             frame.dispose();
             System.exit(0);
         });
