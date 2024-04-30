@@ -2,7 +2,7 @@
 COMP90015-2024S1-Assignment2
 
 **Phase 1:**
- - [ ] Task A - Implement a client that allows a user to draw all the expected elements.
+ - [x] Task A - Implement a client that allows a user to draw all the expected elements.
 	 - [x] Shapes: at least your white board should support for line, circle, oval, and rectangle.
 	 - [x] Free draw and erase must be implemented (it will be more convenient if there are several sizes of eraser)
 	 - [x] Text inputting– allow user to type text anywhere inside the white board.
