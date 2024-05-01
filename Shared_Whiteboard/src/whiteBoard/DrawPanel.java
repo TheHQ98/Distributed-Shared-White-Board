@@ -92,8 +92,12 @@ public class DrawPanel extends JPanel {
         g2d.setPaint(Color.white);
         g2d.fillRect(0, 0, ClientParams.GUI_WIDTH, ClientParams.GUI_HEIGHT);
         g2d.setPaint(color);
-        repaint();
-        saveCanvas();
+    }
+
+    public void newCanvas() {
+        init();
+        renderFrame(frame);
+        sendImage();
     }
 
     // Save the canvas as an image
@@ -284,6 +288,15 @@ public class DrawPanel extends JPanel {
         }
     }
 
+    public void sendSavedImage(BufferedImage savedFrame) {
+        try {
+            byte[] imageData = imageToByteArray(savedFrame);
+            remoteServer.getImage(imageData, name);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     public void syncCanvas(IRemoteCanvas remoteCanvas) throws RemoteException {
         g2d.setStroke(new BasicStroke(3.0f));
         if (ClientParams.DRAW.equals(remoteCanvas.getToolType())) {
@@ -335,5 +348,10 @@ public class DrawPanel extends JPanel {
             point1.y = point2.y;
         }
         repaint();
+    }
+
+    public void getCanvasFromServer(byte[] imageData) throws IOException {
+        savedFrame = byteArrayToImage(imageData);
+        renderFrame(savedFrame);
     }
 }

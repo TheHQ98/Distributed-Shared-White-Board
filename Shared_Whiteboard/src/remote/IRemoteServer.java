@@ -33,4 +33,5 @@ public interface IRemoteServer extends Remote {
     void updateCharArea(String message) throws RemoteException;
     JTextArea getChatArea() throws RemoteException;
     void newCanvas() throws IOException;
+    void updateCanvas() throws IOException;
 }

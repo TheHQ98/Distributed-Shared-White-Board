@@ -62,8 +62,8 @@ public class WhiteBoardGUI {
                 int result = JOptionPane.showConfirmDialog(
                         frame,
                         "Are you sure you want to exit? \n" +
-                                "Make sure you save your canvas as a file\n" +
-                                "Other user will be close automatically",
+                                "Make sure you save your canvas as a file.\n" +
+                                "Other user will be close automatically.",
                         "Exit Confirmation",
                         JOptionPane.YES_NO_OPTION
                 );
@@ -185,6 +185,8 @@ public class WhiteBoardGUI {
             try {
                 BufferedImage image = ImageIO.read(new File(filePath));
                 drawPanel.renderFrame(image);
+                drawPanel.sendSavedImage(image);
+                remoteServer.updateCanvas();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -254,6 +256,10 @@ public class WhiteBoardGUI {
     }
 
     public void askCleanCanvas() {
-        drawPanel.cleanCanvas();
+        drawPanel.newCanvas();
+    }
+
+    public void askGetCanvasFromServer(byte[] imageData) throws IOException {
+        drawPanel.getCanvasFromServer(imageData);
     }
 }

@@ -50,7 +50,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     @Override
     public void getImage(byte[] imageData, String name) throws IOException {
         frame = byteArrayToImage(imageData);
-        //syncCanvas(imageData, name);
+        // TODO no need name
     }
 
     @Override
@@ -246,6 +246,16 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
             client.askCleanCanvas();
         }
         broadcastSystemMessage("SYSTEM: Manager opened a new canvas.");
+    }
+
+    @Override
+    public void updateCanvas() throws IOException {
+        for (IRemoteClient client : userList) {
+            if (client.getName().equals(managerName)) {
+            } else {
+                client.getCanvasFromServer(imageToByteArray(frame));
+            }
+        }
     }
 
 }
