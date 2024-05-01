@@ -15,4 +15,5 @@ public interface IRemoteClient extends Remote {
     void syncList(DefaultListModel<String> tempModel) throws RemoteException;
     void askUpdateList() throws RemoteException;
     void askJoinMessage() throws IOException;
+    void askCleanCanvas() throws RemoteException;
 }

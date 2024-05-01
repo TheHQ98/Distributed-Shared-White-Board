@@ -5,6 +5,7 @@
 
 package remote;
 
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.rmi.Remote;
@@ -29,4 +30,7 @@ public interface IRemoteServer extends Remote {
     void broadcastSystemMessage(String message) throws IOException;
     void updateList() throws RemoteException;
     void askQuit(String name) throws RemoteException;
+    void updateCharArea(String message) throws RemoteException;
+    JTextArea getChatArea() throws RemoteException;
+    void newCanvas() throws IOException;
 }

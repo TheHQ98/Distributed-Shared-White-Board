@@ -29,10 +29,12 @@ public class WhiteBoardGUI {
     DrawPanel drawPanel;
     private String filePath;
     private ChatBox chatBox;
+    private IRemoteServer remoteServer;
 
     public WhiteBoardGUI(String userID, boolean isManager, IRemoteServer remoteServer) throws IOException {
         this.userID = userID;
         this.isManager = isManager;
+        this.remoteServer = remoteServer;
 
         frame = new JFrame();
         frame.setTitle(ClientParams.GUI_TITLE + userID);
@@ -112,7 +114,11 @@ public class WhiteBoardGUI {
         JMenuItem newItem = new JMenuItem("New");
         newItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                newFile();
+                try {
+                    newFile();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
         fileMenu.add(newItem);
@@ -161,13 +167,13 @@ public class WhiteBoardGUI {
         frame.setJMenuBar(menuBar);
     }
 
-    private void newFile() {
+    private void newFile() throws IOException {
         int answer = JOptionPane.showConfirmDialog(null,
                 "Are you sure you want to create a new canvas?\n" +
                         "The exist canvas will be delete.", "Warning", JOptionPane.YES_NO_OPTION);
         if (answer == JOptionPane.YES_OPTION) {
-            drawPanel.cleanCanvas();
-            //TODO
+            //drawPanel.cleanCanvas();
+            remoteServer.newCanvas();
         }
     }
 
@@ -245,5 +251,9 @@ public class WhiteBoardGUI {
 
     public void askJoinMessage() throws IOException {
         chatBox.joinMessage();
+    }
+
+    public void askCleanCanvas() {
+        drawPanel.cleanCanvas();
     }
 }

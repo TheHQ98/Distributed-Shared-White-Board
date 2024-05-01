@@ -1,6 +1,7 @@
 package whiteBoard;
 
 import remote.IRemoteServer;
+import remote.RemoteServer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,8 +9,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class ChatBox extends JPanel {
     private JList<String> userList;
@@ -27,18 +26,9 @@ public class ChatBox extends JPanel {
         this.isManager = isManager;
 
         init();
-
-//        updateUserList(userID);
-//        SwingUtilities.invokeLater(() -> {
-//            try {
-//                joinMessage();
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
     }
 
-    public void init() {
+    public void init() throws RemoteException {
         setLayout(new BorderLayout());
 
         // 用户列表的初始化
@@ -66,20 +56,19 @@ public class ChatBox extends JPanel {
                                     "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                                 try {
                                     askQuit(name);
-                                } catch (RemoteException e) {
+                                } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
                             }
 
                         }
-
                     }
                 }
             });
         }
 
         // 聊天区域的初始化
-        chatArea = new JTextArea();
+        chatArea = remoteServer.getChatArea();
         chatArea.setEditable(false);
         JScrollPane chatScrollPane = new JScrollPane(chatArea);
         chatScrollPane.setPreferredSize(new Dimension(200, 400)); // 设置聊天区域首选尺寸
@@ -174,9 +163,10 @@ public class ChatBox extends JPanel {
         });
     }
 
-    private void askQuit(String name) throws RemoteException {
+    private void askQuit(String name) throws IOException {
         remoteServer.askQuit(name);
         userModel.removeElement(name);
+        remoteServer.broadcastSystemMessage("SYSTEM: Manager kick out " + name);
     }
 }
 

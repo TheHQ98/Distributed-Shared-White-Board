@@ -190,6 +190,9 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
                 client.syncMessage(name + ": " + message);
             }
         }
+
+        //TODO Send message to database
+        updateCharArea(name + ": " + message);
     }
 
     @Override
@@ -197,6 +200,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         for (IRemoteClient client : userList) {
             client.syncMessage(message);
         }
+        updateCharArea(message);
     }
 
     @Override
@@ -223,6 +227,25 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
             }
         }
         updateList(); //TODO 有bug 列表不会实时显示 -- 已修复需要更多验证
+    }
+
+    @Override
+    public void updateCharArea(String message) throws RemoteException {
+        serverDB.updateCharArea(message);
+        serverDB.printChatArea();
+    }
+
+    @Override
+    public JTextArea getChatArea() throws RemoteException {
+        return serverDB.getChatArea();
+    }
+
+    @Override
+    public void newCanvas() throws IOException {
+        for (IRemoteClient client : userList) {
+            client.askCleanCanvas();
+        }
+        broadcastSystemMessage("SYSTEM: Manager opened a new canvas.");
     }
 
 }

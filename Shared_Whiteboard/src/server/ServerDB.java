@@ -5,6 +5,7 @@ import javax.swing.*;
 public class ServerDB extends JFrame {
     private DefaultListModel<String> managerModel;
     private DefaultListModel<String> userModel;
+    private JTextArea chatArea;
 
     public ServerDB() {
     }
@@ -16,6 +17,8 @@ public class ServerDB extends JFrame {
 
         // 创建用户列表和标签
         userModel = new DefaultListModel<>();
+
+        chatArea = new JTextArea();
     }
 
     public void setManagerName(String manager) {
@@ -51,8 +54,23 @@ public class ServerDB extends JFrame {
         for (int i = 0; i < userModel.size(); i++) {
             tempModel.addElement(userModel.get(i));
         }
-        System.out.println(tempModel.size());
+        //System.out.println(tempModel.size());
         return tempModel;
+    }
+
+    public void printChatArea() {
+        System.out.println(chatArea.getText());
+    }
+
+    public void updateCharArea(String message) {
+        SwingUtilities.invokeLater(() -> {
+            chatArea.append(message + "\n");
+            //System.out.println(message);
+        });
+    }
+
+    public JTextArea getChatArea() {
+        return chatArea;
     }
 
 }
