@@ -29,10 +29,12 @@ public class WhiteBoardGUI {
     DrawPanel drawPanel;
     private String filePath;
     private ChatBox chatBox;
+    private IRemoteServer remoteServer;
 
     public WhiteBoardGUI(String userID, boolean isManager, IRemoteServer remoteServer) throws IOException {
         this.userID = userID;
         this.isManager = isManager;
+        this.remoteServer = remoteServer;
 
         frame = new JFrame();
         frame.setTitle(ClientParams.GUI_TITLE + userID);
@@ -66,9 +68,7 @@ public class WhiteBoardGUI {
                         JOptionPane.YES_NO_OPTION
                 );
                 if (result == JOptionPane.YES_OPTION) {
-                    // 如果是管理者，可以在这里添加离开时的逻辑，比如通知服务器等
                     if (isManager) {
-                        // TODO: 添加管理者离开时的代码
                         System.out.println("Manager left the room.");
                         try {
                             remoteServer.managerLeave();
@@ -76,17 +76,18 @@ public class WhiteBoardGUI {
                             throw new RuntimeException(e);
                         }
                     } else {
-                        System.out.println( userID+ " left the room.");
+                        System.out.println(userID + " left the room.");
                         try {
                             remoteServer.removeUser(userID);
                         } catch (RemoteException e) {
                             e.printStackTrace();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
                         }
                     }
 
-                    // 现在安全退出程序
-                    frame.dispose(); // 关闭窗口
-                    System.exit(0);  // 完全结束程序
+                    frame.dispose();
+                    System.exit(0);
                 }
             }
         });
@@ -113,7 +114,11 @@ public class WhiteBoardGUI {
         JMenuItem newItem = new JMenuItem("New");
         newItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                newFile();
+                try {
+                    newFile();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
         fileMenu.add(newItem);
@@ -162,13 +167,13 @@ public class WhiteBoardGUI {
         frame.setJMenuBar(menuBar);
     }
 
-    private void newFile() {
+    private void newFile() throws IOException {
         int answer = JOptionPane.showConfirmDialog(null,
                 "Are you sure you want to create a new canvas?\n" +
                         "The exist canvas will be delete.", "Warning", JOptionPane.YES_NO_OPTION);
         if (answer == JOptionPane.YES_OPTION) {
-            drawPanel.cleanCanvas();
-            //TODO
+            //drawPanel.cleanCanvas();
+            remoteServer.newCanvas();
         }
     }
 
@@ -230,7 +235,7 @@ public class WhiteBoardGUI {
 
     public void askQuit(String managerName) {
         SwingUtilities.invokeLater(() -> {
-            JOptionPane.showMessageDialog(frame, "Manager(" + managerName + ") has shut down. whiteboard will be close", "Message from manager", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Manager(" + managerName + ") closed your access. whiteboard will be close", "Message from manager", JOptionPane.WARNING_MESSAGE);
             frame.dispose();
             System.exit(0);
         });
@@ -246,5 +251,9 @@ public class WhiteBoardGUI {
 
     public void askJoinMessage() throws IOException {
         chatBox.joinMessage();
+    }
+
+    public void askCleanCanvas() {
+        drawPanel.cleanCanvas();
     }
 }

@@ -5,6 +5,7 @@
 
 package remote;
 
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.rmi.Remote;
@@ -20,13 +21,16 @@ public interface IRemoteServer extends Remote {
     void signIn(IRemoteClient remoteClient) throws RemoteException;
     void setManagerName(String name) throws RemoteException;
     void addUser(String name) throws RemoteException;
-    void removeUser(String name) throws RemoteException;
+    void removeUser(String name) throws IOException;
     void getManagerName() throws RemoteException;
     void getUserList(String name) throws IOException;
     void syncCanvas(byte[] imageData, String name) throws IOException;
     void managerLeave() throws RemoteException;
     void broadcastMessage(String message, String name) throws IOException;
-    void broadcastJoinMessage(String message) throws IOException;
+    void broadcastSystemMessage(String message) throws IOException;
     void updateList() throws RemoteException;
     void askQuit(String name) throws RemoteException;
+    void updateCharArea(String message) throws RemoteException;
+    JTextArea getChatArea() throws RemoteException;
+    void newCanvas() throws IOException;
 }

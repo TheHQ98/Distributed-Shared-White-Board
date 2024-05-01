@@ -32,7 +32,7 @@ public class ClientParams {
     public static final String ERASER    = "eraser";
     public static final String TEXT      = "text";
 
-    // 20 colors
+    // 16 colors
     public static final Color SILVER = new Color(192, 192, 192);
     public static final Color BLACK = new Color(0, 0, 0);
     public static final Color RED = new Color(255, 0, 0);

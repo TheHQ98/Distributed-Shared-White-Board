@@ -5,7 +5,7 @@
 
 package remote;
 
-import serverGUI.ServerGUI;
+import server.ServerDB;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -23,7 +23,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     private static BufferedImage frame;
     private String managerName;
     private Set<IRemoteClient> userList;
-    private ServerGUI serverGUI;
+    private ServerDB serverDB;
 
     public RemoteServer() throws RemoteException {
         super();
@@ -31,8 +31,8 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                serverGUI = new ServerGUI();
-                serverGUI.init();
+                serverDB = new ServerDB();
+                serverDB.init();
             }
         });
     }
@@ -96,7 +96,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         }
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                serverGUI.setManagerName(name);
+                serverDB.setManagerName(name);
             }
         });
     }
@@ -105,25 +105,23 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     public void addUser(String name) throws RemoteException {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                serverGUI.updateUserList(name);
+                serverDB.updateUserList(name);
             }
         });
     }
 
     @Override
-    public void removeUser(String name) throws RemoteException {
+    public void removeUser(String name) throws IOException {
         System.out.println(name + " request leave.");
         for (IRemoteClient client : userList) {
             if (client.getName().equals(name)) {
                 userList.remove(client);
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        serverGUI.removeUser(name);
-                    }
-                });
+                serverDB.removeUser(name);
                 break;
             }
         }
+        updateList();
+        broadcastSystemMessage("SYSTEM: " + name  + " has left.");
     }
 
     @Override
@@ -161,7 +159,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         try {
-                            serverGUI.removeUser(client.getName());
+                            serverDB.removeUser(client.getName());
                         } catch (RemoteException e) {
                             throw new RuntimeException(e);
                         }
@@ -176,7 +174,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
                 userList.remove(client);
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        serverGUI.removeManager(managerName);
+                        serverDB.removeManager(managerName);
                     }
                 });
             }
@@ -192,19 +190,23 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
                 client.syncMessage(name + ": " + message);
             }
         }
+
+        //TODO Send message to database
+        updateCharArea(name + ": " + message);
     }
 
     @Override
-    public void broadcastJoinMessage(String message) throws IOException {
+    public void broadcastSystemMessage(String message) throws IOException {
         for (IRemoteClient client : userList) {
             client.syncMessage(message);
         }
+        updateCharArea(message);
     }
 
     @Override
     public void updateList() throws RemoteException {
-        DefaultListModel<String> tempModel = serverGUI.getList();
-        System.out.println(tempModel);
+        DefaultListModel<String> tempModel = serverDB.getList();
+        //System.out.println(tempModel);
         for (IRemoteClient client : userList) {
             client.syncList(tempModel);
         }
@@ -216,20 +218,34 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
             if (client.getName().equals(name)) {
                 System.out.println("Remove: " + client.getName());
                 userList.remove(client);
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        try {
-                            serverGUI.removeUser(client.getName());
-                        } catch (RemoteException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
+                try {
+                    serverDB.removeUser(client.getName());
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
                 client.askQuit(managerName);
             }
         }
+        updateList(); //TODO 有bug 列表不会实时显示 -- 已修复需要更多验证
+    }
 
-        updateList(); //TODO 有bug 列表不会实时显示
+    @Override
+    public void updateCharArea(String message) throws RemoteException {
+        serverDB.updateCharArea(message);
+        serverDB.printChatArea();
+    }
+
+    @Override
+    public JTextArea getChatArea() throws RemoteException {
+        return serverDB.getChatArea();
+    }
+
+    @Override
+    public void newCanvas() throws IOException {
+        for (IRemoteClient client : userList) {
+            client.askCleanCanvas();
+        }
+        broadcastSystemMessage("SYSTEM: Manager opened a new canvas.");
     }
 
 }

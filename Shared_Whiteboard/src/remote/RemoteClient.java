@@ -63,4 +63,9 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
         whiteBoardGUI.askJoinMessage();
     }
 
+    @Override
+    public void askCleanCanvas() throws RemoteException {
+        whiteBoardGUI.askCleanCanvas();
+    }
+
 }

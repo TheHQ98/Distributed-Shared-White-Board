@@ -93,6 +93,7 @@ public class DrawPanel extends JPanel {
         g2d.fillRect(0, 0, ClientParams.GUI_WIDTH, ClientParams.GUI_HEIGHT);
         g2d.setPaint(color);
         repaint();
+        saveCanvas();
     }
 
     // Save the canvas as an image

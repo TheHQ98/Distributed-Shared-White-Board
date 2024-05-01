@@ -1,6 +1,7 @@
 package whiteBoard;
 
 import remote.IRemoteServer;
+import remote.RemoteServer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,8 +9,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class ChatBox extends JPanel {
     private JList<String> userList;
@@ -27,18 +26,9 @@ public class ChatBox extends JPanel {
         this.isManager = isManager;
 
         init();
-
-//        updateUserList(userID);
-//        SwingUtilities.invokeLater(() -> {
-//            try {
-//                joinMessage();
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
     }
 
-    public void init() {
+    public void init() throws RemoteException {
         setLayout(new BorderLayout());
 
         // 用户列表的初始化
@@ -61,22 +51,24 @@ public class ChatBox extends JPanel {
                         // 获取该索引处的元素
                         String name = (String)list.getModel().getElementAt(index);
                         if (!name.equals(userID)) {
-                            // 输出选中的元素
-                            System.out.println("Clicked on: " + name);
-                            try {
-                                askQuit(name);
-                            } catch (RemoteException e) {
-                                throw new RuntimeException(e);
+                            if(JOptionPane.showConfirmDialog(null,
+                                    "Are you sure you want to kick " + name + " out?",
+                                    "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                                try {
+                                    askQuit(name);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
                             }
-                        }
 
+                        }
                     }
                 }
             });
         }
 
         // 聊天区域的初始化
-        chatArea = new JTextArea();
+        chatArea = remoteServer.getChatArea();
         chatArea.setEditable(false);
         JScrollPane chatScrollPane = new JScrollPane(chatArea);
         chatScrollPane.setPreferredSize(new Dimension(200, 400)); // 设置聊天区域首选尺寸
@@ -134,11 +126,6 @@ public class ChatBox extends JPanel {
         chatArea.append(message + "\n");
     }
 
-    private String getCurrentTime() {
-        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
-        return formatter.format(new Date()) + ": ";
-    }
-
     private void sendMessage() throws IOException {
         String message = chatInputField.getText();
         if (!message.isEmpty()) {
@@ -158,25 +145,28 @@ public class ChatBox extends JPanel {
     }
 
     public void broadcastJoinMessage(String message) throws IOException {
-        remoteServer.broadcastJoinMessage(message);
+        remoteServer.broadcastSystemMessage(message);
     }
 
     public void joinMessage() throws IOException {
-        broadcastJoinMessage(getCurrentTime() + userID + " joined");
+        broadcastJoinMessage("SYSTEM: " + userID + " joined");
     }
 
     public void syncList(DefaultListModel<String> tempModel) {
-        System.out.println(tempModel);
         SwingUtilities.invokeLater(() -> {
             userModel.clear();
             for (int i = 0; i < tempModel.getSize(); i++) {
                 userModel.addElement(tempModel.getElementAt(i));
             }
+            userList.revalidate();
+            userList.repaint();
         });
     }
 
-    private void askQuit(String name) throws RemoteException {
+    private void askQuit(String name) throws IOException {
         remoteServer.askQuit(name);
+        userModel.removeElement(name);
+        remoteServer.broadcastSystemMessage("SYSTEM: Manager kick out " + name);
     }
 }
 
