@@ -7,7 +7,6 @@ package whiteBoard;
 
 import remote.IRemoteCanvas;
 import remote.IRemoteServer;
-import remote.RemoteCanvas;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -99,9 +98,14 @@ public class WhiteBoardGUI {
         if (!isManager) {
             JMenuBar menuBar = new JMenuBar();
             frame.setJMenuBar(menuBar);
-            // Create empty menu
-            JMenu fileMenu = new JMenu();
-            menuBar.add(fileMenu);
+
+            JMenu labelMenu = new JMenu("Current tool: ");
+            labelMenu.setEnabled(false);
+            menuBar.add(labelMenu);
+
+            JMenu labelColor = new JMenu("Current color: ");
+            labelColor.setEnabled(false);
+            menuBar.add(labelColor);
             return;
         }
         JMenuBar menuBar = new JMenuBar();
@@ -109,6 +113,14 @@ public class WhiteBoardGUI {
         // Create file menu
         JMenu fileMenu = new JMenu("File");
         menuBar.add(fileMenu);
+
+        JMenu labelTool = new JMenu("Current tool: ");
+        labelTool.setEnabled(false);
+        menuBar.add(labelTool);
+
+        JMenu labelColor = new JMenu("Current color: ");
+        labelColor.setEnabled(false);
+        menuBar.add(labelColor);
 
         // new file option
         JMenuItem newItem = new JMenuItem("New");
