@@ -38,6 +38,7 @@ public class WhiteBoardGUI {
         frame = new JFrame();
         frame.setTitle(ClientParams.GUI_TITLE + userID);
         frame.setSize(ClientParams.GUI_WIDTH, ClientParams.GUI_HEIGHT);
+        frame.setMinimumSize(new Dimension(ClientParams.GUI_WIDTH, ClientParams.GUI_HEIGHT));
 
         // set menu bar
         menuBar();
@@ -95,97 +96,86 @@ public class WhiteBoardGUI {
 
     // set a menu bar
     private void menuBar() {
-        if (!isManager) {
-            JMenuBar menuBar = new JMenuBar();
-            frame.setJMenuBar(menuBar);
-
-            JMenu labelMenu = new JMenu("Current tool: ");
-            labelMenu.setEnabled(false);
-            menuBar.add(labelMenu);
-
-            JMenu labelColor = new JMenu("Current color: ");
-            labelColor.setEnabled(false);
-            menuBar.add(labelColor);
-            return;
-        }
         JMenuBar menuBar = new JMenuBar();
         frame.setJMenuBar(menuBar);
-        // Create file menu
-        JMenu fileMenu = new JMenu("File");
-        menuBar.add(fileMenu);
 
-        JMenu labelTool = new JMenu("Current tool: ");
-        labelTool.setEnabled(false);
-        menuBar.add(labelTool);
+        if (isManager) {
+            // Create file menu
+            JMenu fileMenu = new JMenu("File");
+            menuBar.add(fileMenu);
 
-        JMenu labelColor = new JMenu("Current color: ");
-        labelColor.setEnabled(false);
-        menuBar.add(labelColor);
-
-        // new file option
-        JMenuItem newItem = new JMenuItem("New");
-        newItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    newFile();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
+            // new file option
+            JMenuItem newItem = new JMenuItem("New");
+            newItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        newFile();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
-            }
-        });
-        fileMenu.add(newItem);
+            });
+            fileMenu.add(newItem);
 
-        // open file option
-        JMenuItem openItem = new JMenuItem("Open");
-        openItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                openFile();
-            }
-        });
-        fileMenu.add(openItem);
-
-        // save file option
-        JMenuItem saveItem = new JMenuItem("Save");
-        saveItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                save();
-            }
-        });
-        fileMenu.add(saveItem);
-
-        // save as file option
-        JMenuItem saveAsItem = new JMenuItem("SaveAs");
-        saveAsItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                saveAs();
-            }
-        });
-        fileMenu.add(saveAsItem);
-
-        // close file option
-        JMenuItem closeItem = new JMenuItem("Close");
-        closeItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                // process
-                try {
-                    close();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
+            // open file option
+            JMenuItem openItem = new JMenuItem("Open");
+            openItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    openFile();
                 }
-            }
-        });
-        fileMenu.add(closeItem);
+            });
+            fileMenu.add(openItem);
 
+            // save file option
+            JMenuItem saveItem = new JMenuItem("Save");
+            saveItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    save();
+                }
+            });
+            fileMenu.add(saveItem);
+
+            // save as file option
+            JMenuItem saveAsItem = new JMenuItem("SaveAs");
+            saveAsItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    saveAs();
+                }
+            });
+            fileMenu.add(saveAsItem);
+
+            // close file option
+            JMenuItem closeItem = new JMenuItem("Close");
+            closeItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    // process
+                    try {
+                        close();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            });
+            fileMenu.add(closeItem);
+        }
         frame.setJMenuBar(menuBar);
     }
 
     private void newFile() throws IOException {
-        int answer = JOptionPane.showConfirmDialog(null,
-                "Are you sure you want to create a new canvas?\n" +
-                        "The exist canvas will be delete.", "Warning", JOptionPane.YES_NO_OPTION);
-        if (answer == JOptionPane.YES_OPTION) {
-            //drawPanel.cleanCanvas();
+        if (drawPanel.getIsClosed()) {
             remoteServer.newCanvas();
+            filePath = null;
+            drawPanel.changeIsClosedState(false);
+            JOptionPane.showMessageDialog(frame, "Canvas created", "Canvas", JOptionPane.WARNING_MESSAGE);
+        } else {
+            int answer = JOptionPane.showConfirmDialog(null,
+                    "Are you sure you want to create a new canvas?\n" +
+                            "The exist canvas will be delete.", "Warning", JOptionPane.YES_NO_OPTION);
+            if (answer == JOptionPane.YES_OPTION) {
+                remoteServer.newCanvas();
+                filePath = null;
+                drawPanel.changeIsClosedState(false);
+            }
         }
     }
 
@@ -199,6 +189,7 @@ public class WhiteBoardGUI {
                 drawPanel.renderFrame(image);
                 drawPanel.sendSavedImage(image);
                 remoteServer.updateCanvas();
+                remoteServer.broadcastSystemMessage("SYSTEM: Manager opened a new file");
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -213,7 +204,7 @@ public class WhiteBoardGUI {
                 throw new RuntimeException(ex);
             }
         } else {
-            int answer = JOptionPane.showConfirmDialog(null,
+            int answer = JOptionPane.showConfirmDialog(frame,
                     "You have not save it as a file\n" +
                             "Press yes to save it as a file", "Warning", JOptionPane.YES_NO_OPTION);
             if (answer == JOptionPane.YES_OPTION) {
@@ -237,6 +228,16 @@ public class WhiteBoardGUI {
 
     private void close() throws IOException {
         //TODO
+        int answer = JOptionPane.showConfirmDialog(frame,
+                "Canvas will be close.\n" +
+                        "Do you want to save the canvas?\n" +
+                        "Press yes to save it as a file.", "Warning", JOptionPane.YES_NO_OPTION);
+        if (answer == JOptionPane.YES_OPTION) {
+            save();
+        }
+        drawPanel.newCanvas();
+        drawPanel.changeIsClosedState(true);
+        remoteServer.closeCanvas();
     }
 
     public void syncCanvas(IRemoteCanvas remoteCanvas) throws RemoteException {
@@ -273,5 +274,23 @@ public class WhiteBoardGUI {
 
     public void askGetCanvasFromServer(byte[] imageData) throws IOException {
         drawPanel.getCanvasFromServer(imageData);
+    }
+
+    public void askCloseCanvas() {
+        SwingUtilities.invokeLater(() -> {
+            JOptionPane.showMessageDialog(frame, "Manager closed the canvas. Do you want to reconnect?", "Message from manager", JOptionPane.WARNING_MESSAGE);
+            frame.dispose();
+            System.exit(0);
+        });
+    }
+
+    public boolean requestAccess(String name) {
+        drawPanel.askRender();
+        int answer = JOptionPane.showConfirmDialog(frame,
+                name + " want to access the canvas", "Share Request", JOptionPane.YES_NO_OPTION);
+        if (answer == JOptionPane.YES_OPTION) {
+            return true;
+        }
+        return false;
     }
 }

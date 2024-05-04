@@ -17,4 +17,6 @@ public interface IRemoteClient extends Remote {
     void askJoinMessage() throws IOException;
     void askCleanCanvas() throws RemoteException;
     void getCanvasFromServer(byte[] imageData) throws IOException;
+    void askCloseCanvas() throws RemoteException;
+    boolean askRequest(String name) throws RemoteException;
 }

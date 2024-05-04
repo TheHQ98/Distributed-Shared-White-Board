@@ -1,7 +1,6 @@
 package whiteBoard;
 
 import remote.IRemoteServer;
-import remote.RemoteServer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,7 +34,7 @@ public class ChatBox extends JPanel {
         userModel = new DefaultListModel<>();
         userList = new JList<>(userModel);
         JScrollPane userListScrollPane = new JScrollPane(userList);
-        userListScrollPane.setPreferredSize(new Dimension(200, 200)); // 设置用户列表首选尺寸
+        userListScrollPane.setPreferredSize(new Dimension(200, 200));
 
         if (isManager) {
             userList.addMouseListener(new MouseAdapter() {
@@ -51,7 +50,7 @@ public class ChatBox extends JPanel {
                         // 获取该索引处的元素
                         String name = (String)list.getModel().getElementAt(index);
                         if (!name.equals(userID)) {
-                            if(JOptionPane.showConfirmDialog(null,
+                            if(JOptionPane.showConfirmDialog(ChatBox.this,
                                     "Are you sure you want to kick " + name + " out?",
                                     "Warning", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                                 try {
@@ -71,7 +70,7 @@ public class ChatBox extends JPanel {
         chatArea = remoteServer.getChatArea();
         chatArea.setEditable(false);
         JScrollPane chatScrollPane = new JScrollPane(chatArea);
-        chatScrollPane.setPreferredSize(new Dimension(200, 400)); // 设置聊天区域首选尺寸
+        chatScrollPane.setPreferredSize(new Dimension(200, 200)); // 设置聊天区域首选尺寸
 
         // 聊天输入区域的初始化
         JPanel chatInputPanel = new JPanel();
@@ -98,7 +97,7 @@ public class ChatBox extends JPanel {
                 chatScrollPane,
                 chatInputPanel
         );
-        bottomSplitPane.setDividerLocation(350); // 聊天区域与输入区域的分割线位置
+        bottomSplitPane.setDividerLocation(250); // 聊天区域与输入区域的分割线位置
         bottomSplitPane.setResizeWeight(1); // 聊天区域在窗口调整时获取额外空间
 
         // 总体分割面板（用户列表和下半部分的组合）

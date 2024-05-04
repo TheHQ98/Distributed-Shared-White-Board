@@ -73,4 +73,14 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
         whiteBoardGUI.askGetCanvasFromServer(imageData);
     }
 
+    @Override
+    public void askCloseCanvas() throws RemoteException {
+        whiteBoardGUI.askCloseCanvas();
+    }
+
+    @Override
+    public boolean askRequest(String name) throws RemoteException {
+        return whiteBoardGUI.requestAccess(name);
+    }
+
 }

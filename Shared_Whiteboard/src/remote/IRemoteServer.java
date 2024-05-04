@@ -15,14 +15,12 @@ public interface IRemoteServer extends Remote {
     byte[] updateImage() throws IOException;
     void getImage(byte[] imageData, String name) throws IOException;
     void getCanvas(IRemoteCanvas remoteCanvas) throws IOException;
-    void printTest(String text) throws RemoteException;
     byte[] imageToByteArray(BufferedImage image) throws IOException;
     BufferedImage byteArrayToImage(byte[] imageData) throws IOException;
     void signIn(IRemoteClient remoteClient) throws RemoteException;
     void setManagerName(String name) throws RemoteException;
     void addUser(String name) throws RemoteException;
     void removeUser(String name) throws IOException;
-    void getManagerName() throws RemoteException;
     void getUserList(String name) throws IOException;
     void syncCanvas(byte[] imageData, String name) throws IOException;
     void managerLeave() throws RemoteException;
@@ -34,4 +32,7 @@ public interface IRemoteServer extends Remote {
     JTextArea getChatArea() throws RemoteException;
     void newCanvas() throws IOException;
     void updateCanvas() throws IOException;
+    void closeCanvas() throws RemoteException;
+    boolean askAccess(String name) throws RemoteException;
+    boolean checkName(String name) throws RemoteException;
 }

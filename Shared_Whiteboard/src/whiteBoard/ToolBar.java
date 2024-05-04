@@ -14,8 +14,11 @@ public class ToolBar extends JPanel {
     private JPanel colorBar;
     private JPanel eraserSizePanel;
     private JPanel sizeBar;
+    private JPanel currentState;
     private String toolType;
     private Color colorType;
+    private JLabel currentTool;
+    private JLabel currentColor;
     private float eraserSize = 50.00f;
     private static final Color[] colors = {
             ClientParams.SILVER,
@@ -43,6 +46,8 @@ public class ToolBar extends JPanel {
         colorBar = new JPanel();
         eraserSizePanel = new JPanel();
         sizeBar = new JPanel();
+        currentState = new JPanel();
+        currentTool = new JLabel("Current tool: " + toolType);
         init();
     }
 
@@ -74,7 +79,7 @@ public class ToolBar extends JPanel {
             button.setActionCommand(actionCommand);
             button.addActionListener(e -> {
                 toolType = e.getActionCommand();
-                System.out.println("Selected tool: " + toolType);
+                currentTool.setText("Current tool: " + toolType);
             });
             toolBar.add(button);
         }
@@ -91,7 +96,7 @@ public class ToolBar extends JPanel {
             button.setBorderPainted(false);
             button.addActionListener(e -> {
                 colorType = new Color(color.getRGB());
-                System.out.println("Selected color: " + colorType);
+//                System.out.println("Selected color: " + colorType);
             });
             colorBar.add(button);
         }
@@ -100,9 +105,9 @@ public class ToolBar extends JPanel {
         // setup sizes of eraser
         eraserSizePanel.setLayout(new BoxLayout(eraserSizePanel, BoxLayout.Y_AXIS));
         JLabel sizeLabel = new JLabel("sizes of eraser");
-        sizeLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // 让标签居中对齐
-        JLabel sizeValueLabel = new JLabel(String.valueOf(eraserSize)); // 假设初始值为1
-        sizeValueLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // 让标签居中对齐
+        sizeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel sizeValueLabel = new JLabel(String.valueOf(eraserSize));
+        sizeValueLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         eraserSizePanel.add(sizeLabel);
         sizeBar.setLayout(new FlowLayout(FlowLayout.CENTER, 4, 4));
         String[] sizeIMG = {
@@ -128,14 +133,16 @@ public class ToolBar extends JPanel {
                     }
                 }
                 sizeValueLabel.setText(String.valueOf(eraserSize));
-                //System.out.println("Pressed: " + e.getActionCommand());
             });
             sizeBar.add(button);
         }
         eraserSizePanel.add(sizeBar);
         eraserSizePanel.add(sizeValueLabel);
-
         this.add(eraserSizePanel, BorderLayout.CENTER);
+
+
+        currentTool.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.add(currentTool, BorderLayout.NORTH);
     }
 
     public String getToolType() {

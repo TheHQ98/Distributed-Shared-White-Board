@@ -9,8 +9,12 @@ import java.awt.*;
 
 public class ClientParams {
     public static final String GUI_TITLE = "White Board - ";
-    public static final int GUI_WIDTH    = 1280;
-    public static final int GUI_HEIGHT   = 720;
+    public static final int GUI_WIDTH    = 800;
+    public static final int GUI_HEIGHT   = 600;
+    public static final int CANVAS_WIDTH        = GUI_WIDTH-210;
+    public static final int CANVAS_HEIGHT        = GUI_HEIGHT-135;
+
+    public static final float DEFAULT_STROKE = 3.0f;
 
     // icons path
     public static final String ICON_LINE      = "line.png";

@@ -58,16 +58,9 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         for (IRemoteClient client : userList) {
             if (client.getName().equals(remoteCanvas.getName())) {
             } else {
-                //System.out.println("Update: " + client.getName());
                 client.syncCanvas(remoteCanvas);
             }
         }
-    }
-
-
-    @Override
-    public void printTest(String text) throws RemoteException {
-        System.out.println(text);
     }
 
     @Override
@@ -91,9 +84,6 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     @Override
     public void setManagerName(String name) throws RemoteException {
         this.managerName = name;
-        for (IRemoteClient client : userList) {
-            System.out.println(client.getName());
-        }
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 serverDB.setManagerName(name);
@@ -112,7 +102,6 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 
     @Override
     public void removeUser(String name) throws IOException {
-        System.out.println(name + " request leave.");
         for (IRemoteClient client : userList) {
             if (client.getName().equals(name)) {
                 userList.remove(client);
@@ -122,11 +111,6 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         }
         updateList();
         broadcastSystemMessage("SYSTEM: " + name  + " has left.");
-    }
-
-    @Override
-    public void getManagerName() throws RemoteException {
-        System.out.println(managerName);
     }
 
     @Override
@@ -154,7 +138,6 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         for (IRemoteClient client : userList) {
             if (client.getName().equals(managerName)) {
             } else {
-                System.out.println("Remove: " + client.getName());
                 userList.remove(client);
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
@@ -206,7 +189,6 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     @Override
     public void updateList() throws RemoteException {
         DefaultListModel<String> tempModel = serverDB.getList();
-        //System.out.println(tempModel);
         for (IRemoteClient client : userList) {
             client.syncList(tempModel);
         }
@@ -216,7 +198,6 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     public void askQuit(String name) throws RemoteException {
         for (IRemoteClient client : userList) {
             if (client.getName().equals(name)) {
-                System.out.println("Remove: " + client.getName());
                 userList.remove(client);
                 try {
                     serverDB.removeUser(client.getName());
@@ -256,6 +237,41 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
                 client.getCanvasFromServer(imageToByteArray(frame));
             }
         }
+    }
+
+    @Override
+    public void closeCanvas() throws RemoteException {
+        for (IRemoteClient client : userList) {
+            if (client.getName().equals(managerName)) {
+            } else {
+                client.askCloseCanvas();
+            }
+        }
+    }
+
+    @Override
+    public boolean askAccess(String name) throws RemoteException {
+        for (IRemoteClient client : userList) {
+            if (client.getName().equals(managerName)) {
+                return client.askRequest(name);
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean checkName(String name) throws RemoteException {
+        if (name.equals(managerName)){
+            return true;
+        }
+
+        for (IRemoteClient client : userList) {
+            if (client.getName().equals(name)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

@@ -65,7 +65,6 @@ public class ServerDB extends JFrame {
     public void updateCharArea(String message) {
         SwingUtilities.invokeLater(() -> {
             chatArea.append(message + "\n");
-            //System.out.println(message);
         });
     }
 

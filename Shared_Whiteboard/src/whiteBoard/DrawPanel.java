@@ -37,12 +37,15 @@ public class DrawPanel extends JPanel {
     private String name;
     private Point startPoint;
     private Point endPoint;
+    private boolean isClosed;
+    private boolean isMotion;
 
     public DrawPanel(ToolBar toolBar, IRemoteServer remoteServer, boolean isManager, String name) {
         this.toolBar = toolBar;
         this.remoteServer = remoteServer;
         this.isManager = isManager;
         this.name = name;
+        isClosed = false;
         addMouseListener(startListener);
         addMouseMotionListener(motionLister);
         addMouseListener(endListener);
@@ -50,11 +53,12 @@ public class DrawPanel extends JPanel {
     }
 
     private void init() {
-        frame = new BufferedImage(ClientParams.GUI_WIDTH-211, ClientParams.GUI_HEIGHT-122, BufferedImage.TYPE_INT_RGB);
+//        frame = new BufferedImage(ClientParams.GUI_WIDTH-211, ClientParams.GUI_HEIGHT-122, BufferedImage.TYPE_INT_RGB);
+        frame = new BufferedImage(ClientParams.CANVAS_WIDTH, ClientParams.CANVAS_HEIGHT, BufferedImage.TYPE_INT_RGB);
         g2d = (Graphics2D) frame.getGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setPaint(Color.WHITE);
-        g2d.setStroke(new BasicStroke(3.0f));
+        g2d.setStroke(new BasicStroke(ClientParams.DEFAULT_STROKE));
         cleanCanvas();
     }
 
@@ -73,7 +77,7 @@ public class DrawPanel extends JPanel {
                     g2d = (Graphics2D) frame.getGraphics();
                     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     g2d.setPaint(Color.WHITE);
-                    g2d.setStroke(new BasicStroke(3.0f));
+                    g2d.setStroke(new BasicStroke(ClientParams.DEFAULT_STROKE));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -82,8 +86,8 @@ public class DrawPanel extends JPanel {
         g.drawImage(frame, 0, 0, this);
     }
 
-    public void renderFrame(BufferedImage f) {
-        g2d.drawImage(f, 0, 0, null);
+    public void renderFrame(BufferedImage frame) {
+        g2d.drawImage(frame, 0, 0, null);
         repaint();
     }
 
@@ -107,24 +111,19 @@ public class DrawPanel extends JPanel {
         savedFrame = new BufferedImage(colorModel, raster, false, null);
     }
 
-    public void updateCanvas(byte[] imageData) throws IOException {
-        savedFrame = byteArrayToImage(imageData);
-        renderFrame(savedFrame);
-    }
-
     // Get image of the current canvas
     public BufferedImage getCanvasImage() {
         saveCanvas();
         return savedFrame;
     }
 
-    public BufferedImage getFrame() {
-        return frame;
-    }
-
     private final MouseListener startListener = new MouseAdapter() {
         @Override
         public void mousePressed(java.awt.event.MouseEvent e) {
+            if (isClosed) {
+                JOptionPane.showMessageDialog(DrawPanel.this, "Canvas closed, you need to create a new file", "Warning", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
             // get initial coordinates
             x1 = e.getX();
             y1 = e.getY();
@@ -138,6 +137,8 @@ public class DrawPanel extends JPanel {
             if (ClientParams.TEXT.equals(toolType)) {
                 textInput();
             }
+
+            isMotion = true;
         }
     };
 
@@ -148,7 +149,7 @@ public class DrawPanel extends JPanel {
             x2 = e.getX();
             y2 = e.getY();
 
-            g2d.setStroke(new BasicStroke(3.0f));
+            g2d.setStroke(new BasicStroke(ClientParams.DEFAULT_STROKE));
             if (ClientParams.LINE.equals(toolType)) {
                 renderFrame(savedFrame);
                 g2d.setColor(color);
@@ -178,7 +179,8 @@ public class DrawPanel extends JPanel {
                 x1 = x2;
                 y1 = y2;
                 try {
-                    RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint, name, null, 0, toolBar.getEraserSize());
+                    RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint,
+                            name, null, 0, toolBar.getEraserSize());
                     remoteServer.getCanvas(remoteCanvas);
                 } catch (RemoteException ex) {
                     throw new RuntimeException(ex);
@@ -194,7 +196,8 @@ public class DrawPanel extends JPanel {
                 x1 = x2;
                 y1 = y2;
                 try {
-                    RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint, name, null, 0, toolBar.getEraserSize());
+                    RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint,
+                            name, null, 0, toolBar.getEraserSize());
                     remoteServer.getCanvas(remoteCanvas);
                 } catch (RemoteException ex) {
                     throw new RuntimeException(ex);
@@ -209,11 +212,13 @@ public class DrawPanel extends JPanel {
     private final MouseListener endListener = new MouseAdapter() {
         @Override
         public void mouseReleased(java.awt.event.MouseEvent e) {
+            System.out.println("Mouse Released");
             endPoint = new Point(x2, y2);
 //            System.out.println(startPoint.x + " " + startPoint.y + " " + endPoint.x + " " + endPoint.y);
 //            System.out.println(toolType);
             try {
-                RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint, name, null, 0, toolBar.getEraserSize());
+                RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint,
+                        name, null, 0, toolBar.getEraserSize());
                 remoteServer.getCanvas(remoteCanvas);
             } catch (RemoteException ex) {
                 throw new RuntimeException(ex);
@@ -223,6 +228,10 @@ public class DrawPanel extends JPanel {
 
             // make sure new client get latest canvas
             sendImage();
+            debug();
+            // FIXME: COULD BE WRONG
+            repaint();
+            isMotion = false;
         }
     };
 
@@ -298,7 +307,7 @@ public class DrawPanel extends JPanel {
     }
 
     public void syncCanvas(IRemoteCanvas remoteCanvas) throws RemoteException {
-        g2d.setStroke(new BasicStroke(3.0f));
+        g2d.setStroke(new BasicStroke(ClientParams.DEFAULT_STROKE));
         if (ClientParams.DRAW.equals(remoteCanvas.getToolType())) {
             g2d.setColor(remoteCanvas.getColor());
             Point point1 = remoteCanvas.getStartPoint();
@@ -353,5 +362,25 @@ public class DrawPanel extends JPanel {
     public void getCanvasFromServer(byte[] imageData) throws IOException {
         savedFrame = byteArrayToImage(imageData);
         renderFrame(savedFrame);
+    }
+
+    public void changeIsClosedState(boolean state) {
+        isClosed = state;
+    }
+
+    public boolean getIsClosed() {
+        return isClosed;
+    }
+
+    // TODO DEBUG MESSAGE
+    public void debug() {
+        System.out.println(isMotion);
+        System.out.println("DEBUG-Draw: " + toolType + " Point: " + startPoint + " " + endPoint);
+    }
+
+    public void askRender() {
+        if (isMotion) {
+            renderFrame(savedFrame);
+        }
     }
 }
