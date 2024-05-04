@@ -13,12 +13,12 @@ COMP90015-2024S1-Assignment2
 
 **Phase 2:**
  - [x] Allow the manager to create a whiteboard
- - [ ] Allow other peers to connect and join in by getting approval from the manager
- - [ ] Allow the manager to choose whether a peer can join in
-	 - [ ] join in means the peer's name will appear in the user list
+ - [x] Allow other peers to connect and join in by getting approval from the manager
+ - [x] Allow the manager to choose whether a peer can join in
+	 - [x] join in means the peer's name will appear in the user list
  - [x] Allow the joined peer to choose quit
  - [x] Allow the manager to close the application, and all peers get notified
  - [x] Allow the manager to kick out a certain peer/user
 
 **Phase 3:**
- - [ ] Integrate the whiteboard with the user management skeleton (phases 1 and 2)
+ - [x] Integrate the whiteboard with the user management skeleton (phases 1 and 2)
