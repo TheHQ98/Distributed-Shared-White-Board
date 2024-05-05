@@ -18,8 +18,8 @@ public class JoinWhiteBoard {
             IRemoteServer remoteServer = (IRemoteServer) registry.lookup("SharedWhiteBoard");
 
             if (remoteServer.checkName(args[1])) {
-                JOptionPane.showMessageDialog(null, "Username already exists: " + args[1] + "\n" +
-                        "Please try other name.", "Warning", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Username already exists: " + args[1] +
+                        "\n" + "Please try other name.", "Warning", JOptionPane.WARNING_MESSAGE);
                 System.exit(0);
             }
 
@@ -44,7 +44,8 @@ public class JoinWhiteBoard {
 
             boolean result = remoteServer.askAccess(args[1]);
             if (!result) {
-                JOptionPane.showMessageDialog(null, "Access denied, please contact the manager", "Warning", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Access denied, please contact the manager",
+                        "Warning", JOptionPane.WARNING_MESSAGE);
                 System.exit(0);
             }
 
@@ -57,7 +58,9 @@ public class JoinWhiteBoard {
             remoteClient.askUpdateList();
             remoteClient.askJoinMessage();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Server not started");
+            JOptionPane.showMessageDialog(null, "Server not started." +
+                    " Manager have not create white board yet.", "Warning", JOptionPane.WARNING_MESSAGE);
         }
     }
 }

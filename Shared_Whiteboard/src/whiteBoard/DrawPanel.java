@@ -54,7 +54,6 @@ public class DrawPanel extends JPanel {
     }
 
     private void init() {
-//        frame = new BufferedImage(ClientParams.GUI_WIDTH-211, ClientParams.GUI_HEIGHT-122, BufferedImage.TYPE_INT_RGB);
         frame = new BufferedImage(ClientParams.CANVAS_WIDTH, ClientParams.CANVAS_HEIGHT, BufferedImage.TYPE_INT_RGB);
         g2d = (Graphics2D) frame.getGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -80,7 +79,8 @@ public class DrawPanel extends JPanel {
                     g2d.setPaint(Color.WHITE);
                     g2d.setStroke(new BasicStroke(ClientParams.DEFAULT_STROKE));
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    ClientParams.IO_ERROR();
+                    System.err.println("IOException: " + e);
                 }
             }
         }
@@ -122,7 +122,9 @@ public class DrawPanel extends JPanel {
         @Override
         public void mousePressed(java.awt.event.MouseEvent e) {
             if (isClosed) {
-                JOptionPane.showMessageDialog(DrawPanel.this, "Canvas closed, you need to create a new file", "Warning", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(DrawPanel.this,
+                        "Canvas closed, you need to create a new file",
+                        "Warning", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             // get initial coordinates
@@ -184,9 +186,11 @@ public class DrawPanel extends JPanel {
                             name, null, 0, toolBar.getEraserSize());
                     remoteServer.getCanvas(remoteCanvas);
                 } catch (RemoteException ex) {
-                    throw new RuntimeException(ex);
+                    ClientParams.RMI_CONNECT_ERROR();
+                    System.err.println("RemoteException: " + ex);
                 } catch (IOException ex) {
-                    throw new RuntimeException(ex);
+                    ClientParams.IO_ERROR();
+                    System.err.println("IOException: " + ex);
                 }
             } else if (ClientParams.ERASER.equals(toolType)) {
                 g2d.setColor(Color.WHITE);
@@ -201,9 +205,11 @@ public class DrawPanel extends JPanel {
                             name, null, 0, toolBar.getEraserSize());
                     remoteServer.getCanvas(remoteCanvas);
                 } catch (RemoteException ex) {
-                    throw new RuntimeException(ex);
+                    ClientParams.RMI_CONNECT_ERROR();
+                    System.err.println("RemoteException: " + ex);
                 } catch (IOException ex) {
-                    throw new RuntimeException(ex);
+                    ClientParams.IO_ERROR();
+                    System.err.println("IOException: " + ex);
                 }
             }
             repaint();
@@ -215,16 +221,16 @@ public class DrawPanel extends JPanel {
         public void mouseReleased(java.awt.event.MouseEvent e) {
             System.out.println("Mouse Released");
             endPoint = new Point(x2, y2);
-//            System.out.println(startPoint.x + " " + startPoint.y + " " + endPoint.x + " " + endPoint.y);
-//            System.out.println(toolType);
             try {
                 RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint,
                         name, null, 0, toolBar.getEraserSize());
                 remoteServer.getCanvas(remoteCanvas);
             } catch (RemoteException ex) {
-                throw new RuntimeException(ex);
+                ClientParams.RMI_CONNECT_ERROR();
+                System.err.println("RemoteException: " + ex);
             } catch (IOException ex) {
-                throw new RuntimeException(ex);
+                ClientParams.IO_ERROR();
+                System.err.println("IOException: " + ex);
             }
 
             // make sure new client get latest canvas
@@ -268,9 +274,11 @@ public class DrawPanel extends JPanel {
                         name, text.getText(), (Integer) fontSize.getValue(), toolBar.getEraserSize());
                 remoteServer.getCanvas(remoteCanvas);
             } catch (RemoteException ex) {
-                throw new RuntimeException(ex);
+                ClientParams.RMI_CONNECT_ERROR();
+                System.err.println("RemoteException: " + ex);
             } catch (IOException ex) {
-                throw new RuntimeException(ex);
+                ClientParams.IO_ERROR();
+                System.err.println("IOException: " + ex);
             }
 
             // make sure new client get latest canvas
@@ -295,7 +303,8 @@ public class DrawPanel extends JPanel {
             byte[] imageData = imageToByteArray(frame);
             remoteServer.getImage(imageData, name);
         } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            ClientParams.IO_ERROR();
+            System.err.println("IOException: " + ex);
         }
     }
 
@@ -304,7 +313,8 @@ public class DrawPanel extends JPanel {
             byte[] imageData = imageToByteArray(savedFrame);
             remoteServer.getImage(imageData, name);
         } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            ClientParams.IO_ERROR();
+            System.err.println("IOException: " + ex);
         }
     }
 

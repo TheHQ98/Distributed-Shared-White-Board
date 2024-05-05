@@ -8,6 +8,7 @@ import remote.RemoteClient;
 import remote.IRemoteServer;
 import server.Server;
 
+import javax.swing.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -33,8 +34,10 @@ public class CreateWhiteBoard {
             remoteClient.askJoinMessage();
             System.out.println("Manager Whiteboard ready");
         } catch (Exception e) {
-            System.out.println("Client exception: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("ERROR: " + e);
+            JOptionPane.showMessageDialog(null, "Error occurs",
+                    "Warning", JOptionPane.WARNING_MESSAGE);
+            System.exit(0);
         }
     }
 }

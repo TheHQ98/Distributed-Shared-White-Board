@@ -5,6 +5,7 @@
 
 package whiteBoard;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class ClientParams {
@@ -54,4 +55,17 @@ public class ClientParams {
     public static final Color NAVY = new Color(0, 0, 128);
     public static final Color AQUA = new Color(0, 255, 255);
 
+    public static void RMI_CONNECT_ERROR() {
+        System.err.println("RMI Connect Fail");
+        JOptionPane.showMessageDialog(null, "RMI Connect Fail",
+                "Warning", JOptionPane.WARNING_MESSAGE);
+        System.exit(0);
+    }
+
+    public static void IO_ERROR() {
+        System.err.println("IO Error");
+        JOptionPane.showMessageDialog(null, "IO Error",
+                "Warning", JOptionPane.WARNING_MESSAGE);
+        System.exit(0);
+    }
 }

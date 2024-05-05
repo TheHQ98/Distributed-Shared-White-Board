@@ -3,6 +3,7 @@ package server;
 import remote.IRemoteServer;
 import remote.RemoteServer;
 
+import javax.swing.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -19,8 +20,16 @@ public class Server {
             Registry registry = LocateRegistry.createRegistry(Integer.parseInt(args[0]));
             registry.bind("SharedWhiteBoard", remoteServer);
             System.out.println("RMI Ready");
+        } catch (java.rmi.server.ExportException e) {
+            System.err.println("Server exception: Port " + args[0] + " is already in use. Trying another port...");
+            JOptionPane.showMessageDialog(null, "Port number " + args[0] +
+                    " is already in use, try other number. ", "Warning", JOptionPane.WARNING_MESSAGE);
+            System.exit(0);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Server exception: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "RMI ERROR",
+                    "Warning", JOptionPane.WARNING_MESSAGE);
+            System.exit(0);
         }
     }
 }
