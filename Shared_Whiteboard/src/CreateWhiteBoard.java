@@ -7,6 +7,7 @@ import remote.IRemoteClient;
 import remote.RemoteClient;
 import remote.IRemoteServer;
 import server.Server;
+import whiteBoard.ClientParams;
 
 import javax.swing.*;
 import java.rmi.registry.LocateRegistry;
@@ -23,7 +24,7 @@ public class CreateWhiteBoard {
         try {
             Registry registry = LocateRegistry.getRegistry("localhost", Integer.parseInt(args[0]));
 
-            IRemoteServer remoteServer = (IRemoteServer) registry.lookup("SharedWhiteBoard");
+            IRemoteServer remoteServer = (IRemoteServer) registry.lookup(ClientParams.REGISTRY_NAME);
             IRemoteClient remoteClient = new RemoteClient(name, true, remoteServer);
 
             remoteServer.setManagerName(name);

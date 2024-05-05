@@ -56,7 +56,7 @@ public class ChatBox extends JPanel {
                                 try {
                                     askQuit(name);
                                 } catch (IOException e) {
-                                    throw new RuntimeException(e);
+                                    System.err.println("Unable to remove: " + name);
                                 }
                             }
 

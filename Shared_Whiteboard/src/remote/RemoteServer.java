@@ -182,12 +182,12 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
                 try {
                     serverDB.removeUser(client.getName());
                 } catch (RemoteException e) {
-                    throw new RuntimeException(e);
+                    System.err.println("RMI Error");
                 }
                 client.askQuit(managerName);
             }
         }
-        updateList(); //TODO 有bug 列表不会实时显示 -- 已修复需要更多验证
+        updateList();
     }
 
     @Override
@@ -274,4 +274,8 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         return false;
     }
 
+    @Override
+    public void userClose(String name) throws IOException {
+        removeUser(name);
+    }
 }

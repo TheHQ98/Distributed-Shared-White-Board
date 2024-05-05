@@ -34,4 +34,5 @@ public interface IRemoteServer extends Remote {
     boolean askAccess(String name) throws RemoteException;
     boolean checkName(String name) throws RemoteException;
     boolean getIsClosedState() throws RemoteException;
+    void userClose(String name) throws IOException;
 }

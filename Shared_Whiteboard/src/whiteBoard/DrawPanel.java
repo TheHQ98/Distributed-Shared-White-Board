@@ -46,6 +46,7 @@ public class DrawPanel extends JPanel {
         this.remoteServer = remoteServer;
         this.isManager = isManager;
         this.name = name;
+        x1 = x2 = y1 = y2 = 0;
         isClosed = false;
         addMouseListener(startListener);
         addMouseMotionListener(motionLister);
@@ -239,7 +240,7 @@ public class DrawPanel extends JPanel {
             // FIXME: COULD BE WRONG
             repaint();
             isMotion = false;
-            x1 = x2 = y1 = y2 = -99;
+            x1 = x2 = y1 = y2 = 0;
         }
     };
 
@@ -320,10 +321,10 @@ public class DrawPanel extends JPanel {
 
     public void syncCanvas(IRemoteCanvas remoteCanvas) throws RemoteException {
         //TODO may wrong
-        if (Objects.equals(remoteCanvas.getEndPoint(), new Point(-99, -99))) {
+        if (Objects.equals(remoteCanvas.getEndPoint(), new Point(0, 0))) {
             return;
         }
-        if (Objects.equals(remoteCanvas.getStartPoint(), new Point(-99, -99))) {
+        if (Objects.equals(remoteCanvas.getStartPoint(), new Point(0, 0))) {
             return;
         }
         g2d.setStroke(new BasicStroke(ClientParams.DEFAULT_STROKE));

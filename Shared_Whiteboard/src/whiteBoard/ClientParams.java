@@ -9,6 +9,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ClientParams {
+    public static final String REGISTRY_NAME = "SharedWhiteBoard";
+
     public static final String GUI_TITLE = "White Board - ";
     public static final int GUI_WIDTH    = 800;
     public static final int GUI_HEIGHT   = 600;

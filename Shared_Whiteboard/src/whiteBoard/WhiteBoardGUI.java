@@ -77,21 +77,19 @@ public class WhiteBoardGUI {
                         }
                     } else {
                         //System.out.println(userID + " left the room.");
-                        try {
-                            remoteServer.removeUser(userID);
-                        } catch (RemoteException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+//                        try {
+//                            remoteServer.removeUser(userID);
+//                        } catch (RemoteException e) {
+//                            e.printStackTrace();
+//                        } catch (IOException e) {
+//                            throw new RuntimeException(e);
+//                        }
                     }
-
                     frame.dispose();
                     System.exit(0);
                 }
             }
         });
-
     }
 
     // set a menu bar
@@ -168,7 +166,7 @@ public class WhiteBoardGUI {
             drawPanel.changeIsClosedState(false);
             JOptionPane.showMessageDialog(frame, "Canvas created", "Canvas", JOptionPane.WARNING_MESSAGE);
         } else {
-            int answer = JOptionPane.showConfirmDialog(null,
+            int answer = JOptionPane.showConfirmDialog(frame,
                     "Are you sure you want to create a new canvas?\n" +
                             "The exist canvas will be delete.", "Warning", JOptionPane.YES_NO_OPTION);
             if (answer == JOptionPane.YES_OPTION) {
@@ -189,7 +187,7 @@ public class WhiteBoardGUI {
                 drawPanel.renderFrame(image);
                 drawPanel.sendSavedImage(image);
                 remoteServer.updateCanvas();
-                remoteServer.broadcastSystemMessage("SYSTEM: Manager opened a new file");
+                remoteServer.broadcastSystemMessage("SYSTEM: Manager opened a exist canvas");
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
