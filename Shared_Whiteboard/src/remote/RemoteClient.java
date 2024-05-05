@@ -30,10 +30,6 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
     }
 
     @Override
-    public void updateCanvas(byte[] imageData) throws IOException {
-    }
-
-    @Override
     public void syncCanvas(IRemoteCanvas remoteCanvas) throws RemoteException {
         whiteBoardGUI.syncCanvas(remoteCanvas);
     }
@@ -81,6 +77,11 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
     @Override
     public boolean askRequest(String name) throws RemoteException {
         return whiteBoardGUI.requestAccess(name);
+    }
+
+    @Override
+    public boolean getIsClosedState() throws RemoteException {
+        return whiteBoardGUI.getIsClosedState();
     }
 
 }

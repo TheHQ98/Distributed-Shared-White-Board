@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.Objects;
 
 public class DrawPanel extends JPanel {
     private int x1, y1, x2, y2;
@@ -232,6 +233,7 @@ public class DrawPanel extends JPanel {
             // FIXME: COULD BE WRONG
             repaint();
             isMotion = false;
+            x1 = x2 = y1 = y2 = -99;
         }
     };
 
@@ -251,7 +253,7 @@ public class DrawPanel extends JPanel {
         panel.add(fontLabel);
         panel.add(fontSize);
 
-        int result = JOptionPane.showConfirmDialog(null, panel,
+        int result = JOptionPane.showConfirmDialog(DrawPanel.this, panel,
                 "Type text", JOptionPane.OK_CANCEL_OPTION);
 
         if (result == JOptionPane.OK_OPTION) {
@@ -307,6 +309,13 @@ public class DrawPanel extends JPanel {
     }
 
     public void syncCanvas(IRemoteCanvas remoteCanvas) throws RemoteException {
+        //TODO may wrong
+        if (Objects.equals(remoteCanvas.getEndPoint(), new Point(-99, -99))) {
+            return;
+        }
+        if (Objects.equals(remoteCanvas.getStartPoint(), new Point(-99, -99))) {
+            return;
+        }
         g2d.setStroke(new BasicStroke(ClientParams.DEFAULT_STROKE));
         if (ClientParams.DRAW.equals(remoteCanvas.getToolType())) {
             g2d.setColor(remoteCanvas.getColor());

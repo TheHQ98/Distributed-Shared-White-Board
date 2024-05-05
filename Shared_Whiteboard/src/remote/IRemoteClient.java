@@ -8,7 +8,6 @@ import java.rmi.RemoteException;
 public interface IRemoteClient extends Remote {
     void init() throws IOException;
     String getName() throws RemoteException;
-    void updateCanvas(byte[] imageData) throws IOException;
     void syncCanvas(IRemoteCanvas remoteCanvas) throws IOException;
     void syncMessage(String message) throws IOException;
     void askQuit(String managerName) throws RemoteException;
@@ -19,4 +18,5 @@ public interface IRemoteClient extends Remote {
     void getCanvasFromServer(byte[] imageData) throws IOException;
     void askCloseCanvas() throws RemoteException;
     boolean askRequest(String name) throws RemoteException;
+    boolean getIsClosedState() throws RemoteException;
 }

@@ -69,14 +69,14 @@ public class WhiteBoardGUI {
                 );
                 if (result == JOptionPane.YES_OPTION) {
                     if (isManager) {
-                        System.out.println("Manager left the room.");
+                        //System.out.println("Manager left the room.");
                         try {
                             remoteServer.managerLeave();
                         } catch (RemoteException e) {
                             throw new RuntimeException(e);
                         }
                     } else {
-                        System.out.println(userID + " left the room.");
+                        //System.out.println(userID + " left the room.");
                         try {
                             remoteServer.removeUser(userID);
                         } catch (RemoteException e) {
@@ -228,13 +228,38 @@ public class WhiteBoardGUI {
 
     private void close() throws IOException {
         //TODO
-        int answer = JOptionPane.showConfirmDialog(frame,
-                "Canvas will be close.\n" +
-                        "Do you want to save the canvas?\n" +
-                        "Press yes to save it as a file.", "Warning", JOptionPane.YES_NO_OPTION);
+//        int answer = JOptionPane.showConfirmDialog(frame,
+//                "Canvas will be close.\n" +
+//                        "Do you want to save the canvas?\n" +
+//                        "Press yes to save it as a file.", "Warning", JOptionPane.YES_NO_OPTION);
+//        if (answer == JOptionPane.YES_OPTION) {
+//            save();
+//        }
+
+        if (drawPanel.getIsClosed()) {
+            JOptionPane.showMessageDialog(frame, "Canvas already closed", "Canvas", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+
+        Object[] options = {"Save", "No", "Cancel"};
+
+        int answer = JOptionPane.showOptionDialog(frame,
+                "Canvas will be closed.\n" +
+                        "Do you want to save the canvas?",
+                "Warning",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
+
         if (answer == JOptionPane.YES_OPTION) {
             save();
+        } else if (answer == JOptionPane.CANCEL_OPTION) {
+            return;
         }
+
         drawPanel.newCanvas();
         drawPanel.changeIsClosedState(true);
         remoteServer.closeCanvas();
@@ -276,12 +301,41 @@ public class WhiteBoardGUI {
         drawPanel.getCanvasFromServer(imageData);
     }
 
-    public void askCloseCanvas() {
-        SwingUtilities.invokeLater(() -> {
-            JOptionPane.showMessageDialog(frame, "Manager closed the canvas. Do you want to reconnect?", "Message from manager", JOptionPane.WARNING_MESSAGE);
-            frame.dispose();
-            System.exit(0);
-        });
+    public void askCloseCanvas() throws RemoteException {
+//        SwingUtilities.invokeLater(() -> {
+//            JOptionPane.showMessageDialog(frame, "Manager closed the canvas. Do you want to reconnect?",
+//                    "Message from manager", JOptionPane.WARNING_MESSAGE);
+//        });
+
+        int answer = JOptionPane.showConfirmDialog(frame,
+                "Manager closed the canvas. Do you want to reconnect?", "Warning", JOptionPane.YES_NO_OPTION);
+        if (answer == JOptionPane.YES_OPTION) {
+            System.out.println(remoteServer.getIsClosedState());
+            while (remoteServer.getIsClosedState()) {
+                Object[] options = {"Retry"};
+                JOptionPane.showOptionDialog(frame,
+                        "Manager have not open a new file yet",
+                        "Message from manager",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.WARNING_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+            }
+        } else {
+            try {
+                remoteServer.removeUser(userID);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            Thread t = new Thread(() -> {
+                frame.dispose();
+                System.exit(0);
+            });
+            t.start();
+        }
     }
 
     public boolean requestAccess(String name) {
@@ -292,5 +346,9 @@ public class WhiteBoardGUI {
             return true;
         }
         return false;
+    }
+
+    public boolean getIsClosedState() {
+        return drawPanel.getIsClosed();
     }
 }

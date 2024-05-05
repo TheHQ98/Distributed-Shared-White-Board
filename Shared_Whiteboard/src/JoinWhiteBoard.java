@@ -17,21 +17,30 @@ public class JoinWhiteBoard {
 
             IRemoteServer remoteServer = (IRemoteServer) registry.lookup("SharedWhiteBoard");
 
-
-            // TODO need to fix
-//            try {
-//                System.out.println("Waiting for manager to accept...");
-//                Thread.sleep(3000);
-//            } catch (InterruptedException e) {
-//                // 如果线程在sleep期间被中断，处理中断异常
-//                System.err.println("Sleep was interrupted");
-//            }
-
             if (remoteServer.checkName(args[1])) {
                 JOptionPane.showMessageDialog(null, "Username already exists: " + args[1] + "\n" +
                         "Please try other name.", "Warning", JOptionPane.WARNING_MESSAGE);
                 System.exit(0);
             }
+
+            while (remoteServer.getIsClosedState()) {
+                Object[] options = {"Retry", "Close"};
+
+                int answer = JOptionPane.showOptionDialog(null,
+                        "Manager has not opened a new file yet.",
+                        "Server",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+                if (answer == JOptionPane.YES_OPTION) {
+                    continue;
+                } else if (answer == JOptionPane.NO_OPTION) {
+                    System.exit(0);
+                }
+            }
+
 
             boolean result = remoteServer.askAccess(args[1]);
             if (!result) {

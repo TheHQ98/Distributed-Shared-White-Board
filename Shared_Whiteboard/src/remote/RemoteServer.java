@@ -114,26 +114,6 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     }
 
     @Override
-    public void getUserList(String name) throws IOException {
-        for (IRemoteClient client : userList) {
-            if (client.getName().equals(name)) {
-            } else {
-                client.updateCanvas(null);
-            }
-        }
-    }
-
-    @Override
-    public void syncCanvas(byte[] imageData, String name) throws IOException {
-        for (IRemoteClient client : userList) {
-            if (client.getName().equals(name)) {
-            } else {
-                client.updateCanvas(null);
-            }
-        }
-    }
-
-    @Override
     public void managerLeave() throws RemoteException {
         for (IRemoteClient client : userList) {
             if (client.getName().equals(managerName)) {
@@ -213,7 +193,6 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     @Override
     public void updateCharArea(String message) throws RemoteException {
         serverDB.updateCharArea(message);
-        serverDB.printChatArea();
     }
 
     @Override
@@ -240,13 +219,24 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     }
 
     @Override
-    public void closeCanvas() throws RemoteException {
+    public void closeCanvas() throws IOException {
         for (IRemoteClient client : userList) {
-            if (client.getName().equals(managerName)) {
-            } else {
-                client.askCloseCanvas();
+            try {
+                if (!client.getName().equals(managerName)) {
+                    Thread t = new Thread(() -> {
+                        try {
+                            client.askCloseCanvas();
+                        } catch (RemoteException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                    t.start();
+                }
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
             }
         }
+        broadcastSystemMessage("SYSTEM: Manager closed canvas.");
     }
 
     @Override
@@ -271,6 +261,16 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
             }
         }
 
+        return false;
+    }
+
+    @Override
+    public boolean getIsClosedState() throws RemoteException {
+        for (IRemoteClient client : userList) {
+            if (client.getName().equals(managerName)) {
+                return client.getIsClosedState();
+            }
+        }
         return false;
     }
 
