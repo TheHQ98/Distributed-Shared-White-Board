@@ -54,7 +54,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     }
 
     @Override
-    public void getCanvas(IRemoteCanvas remoteCanvas) throws IOException {
+    public void broadcastCanvas(IRemoteCanvas remoteCanvas) throws IOException {
         for (IRemoteClient client : userList) {
             if (client.getName().equals(remoteCanvas.getName())) {
             } else {

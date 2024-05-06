@@ -7,17 +7,11 @@ public class ServerDB extends JFrame {
     private DefaultListModel<String> userModel;
     private JTextArea chatArea;
 
-    public ServerDB() {
-    }
+    public ServerDB() {}
 
     public void init() {
-
-        // 创建管理员列表和标签
         managerModel = new DefaultListModel<>();
-
-        // 创建用户列表和标签
         userModel = new DefaultListModel<>();
-
         chatArea = new JTextArea();
     }
 
@@ -56,10 +50,6 @@ public class ServerDB extends JFrame {
         }
         //System.out.println(tempModel.size());
         return tempModel;
-    }
-
-    public void printChatArea() {
-        System.out.println(chatArea.getText());
     }
 
     public void updateCharArea(String message) {

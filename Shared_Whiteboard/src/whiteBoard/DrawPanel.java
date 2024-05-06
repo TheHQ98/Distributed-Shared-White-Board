@@ -185,7 +185,7 @@ public class DrawPanel extends JPanel {
                 try {
                     RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint,
                             name, null, 0, toolBar.getEraserSize());
-                    remoteServer.getCanvas(remoteCanvas);
+                    remoteServer.broadcastCanvas(remoteCanvas);
                 } catch (RemoteException ex) {
                     ClientParams.RMI_CONNECT_ERROR();
                     System.err.println("RemoteException: " + ex);
@@ -204,7 +204,7 @@ public class DrawPanel extends JPanel {
                 try {
                     RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint,
                             name, null, 0, toolBar.getEraserSize());
-                    remoteServer.getCanvas(remoteCanvas);
+                    remoteServer.broadcastCanvas(remoteCanvas);
                 } catch (RemoteException ex) {
                     ClientParams.RMI_CONNECT_ERROR();
                     System.err.println("RemoteException: " + ex);
@@ -225,7 +225,7 @@ public class DrawPanel extends JPanel {
             try {
                 RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint,
                         name, null, 0, toolBar.getEraserSize());
-                remoteServer.getCanvas(remoteCanvas);
+                remoteServer.broadcastCanvas(remoteCanvas);
             } catch (RemoteException ex) {
                 ClientParams.RMI_CONNECT_ERROR();
                 System.err.println("RemoteException: " + ex);
@@ -273,7 +273,7 @@ public class DrawPanel extends JPanel {
             try {
                 RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint,
                         name, text.getText(), (Integer) fontSize.getValue(), toolBar.getEraserSize());
-                remoteServer.getCanvas(remoteCanvas);
+                remoteServer.broadcastCanvas(remoteCanvas);
             } catch (RemoteException ex) {
                 ClientParams.RMI_CONNECT_ERROR();
                 System.err.println("RemoteException: " + ex);

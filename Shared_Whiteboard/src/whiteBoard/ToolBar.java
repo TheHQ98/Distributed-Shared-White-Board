@@ -14,11 +14,9 @@ public class ToolBar extends JPanel {
     private JPanel colorBar;
     private JPanel eraserSizePanel;
     private JPanel sizeBar;
-    private JPanel currentState;
     private String toolType;
     private Color colorType;
     private JLabel currentTool;
-    private JLabel currentColor;
     private float eraserSize = 50.00f;
     private static final Color[] colors = {
             ClientParams.SILVER,
@@ -46,7 +44,6 @@ public class ToolBar extends JPanel {
         colorBar = new JPanel();
         eraserSizePanel = new JPanel();
         sizeBar = new JPanel();
-        currentState = new JPanel();
         currentTool = new JLabel("Current tool: " + toolType);
         init();
     }

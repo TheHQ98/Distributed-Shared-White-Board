@@ -66,7 +66,7 @@ public class ChatBox extends JPanel {
             });
         }
 
-        // 聊天区域的初始化
+        // initial chat box
         chatArea = remoteServer.getChatArea();
         chatArea.setEditable(false);
         JScrollPane chatScrollPane = new JScrollPane(chatArea);

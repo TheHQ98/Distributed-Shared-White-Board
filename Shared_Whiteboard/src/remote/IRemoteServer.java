@@ -14,7 +14,7 @@ import java.rmi.RemoteException;
 public interface IRemoteServer extends Remote {
     byte[] updateImage() throws IOException;
     void getImage(byte[] imageData, String name) throws IOException;
-    void getCanvas(IRemoteCanvas remoteCanvas) throws IOException;
+    void broadcastCanvas(IRemoteCanvas remoteCanvas) throws IOException;
     byte[] imageToByteArray(BufferedImage image) throws IOException;
     BufferedImage byteArrayToImage(byte[] imageData) throws IOException;
     void signIn(IRemoteClient remoteClient) throws RemoteException;
