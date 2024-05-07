@@ -2,8 +2,8 @@
 COMP90015-2024S1-Assignment2
 
 **How to Run**
-- java CreateWhiteBoard <serverIPAddress> <serverPort> username
-- java JoinWhiteBoard <serverIPAddress> <serverPort> username
+- java CreateWhiteBoard serverIPAddress serverPort username
+- java JoinWhiteBoard serverIPAddress serverPort username
 
 **Phase 1:**
  - [x] Task A - Implement a client that allows a user to draw all the expected elements.
