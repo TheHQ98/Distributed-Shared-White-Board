@@ -124,7 +124,7 @@ public class DrawPanel extends JPanel {
         public void mousePressed(java.awt.event.MouseEvent e) {
             if (isClosed) {
                 JOptionPane.showMessageDialog(DrawPanel.this,
-                        "Canvas closed, you need to create a new file",
+                        "Canvas closed, you need to create a new file or open a exist file.",
                         "Warning", JOptionPane.WARNING_MESSAGE);
                 return;
             }

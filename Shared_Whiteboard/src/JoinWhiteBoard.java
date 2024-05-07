@@ -14,13 +14,15 @@ import java.rmi.registry.Registry;
 
 public class JoinWhiteBoard {
     public static void main(String[] args) {
+        checkArgs(args);
+
         try {
-            Registry registry = LocateRegistry.getRegistry("localhost", Integer.parseInt(args[0]));
+            Registry registry = LocateRegistry.getRegistry(args[0], Integer.parseInt(args[1]));
 
             IRemoteServer remoteServer = (IRemoteServer) registry.lookup(ClientParams.REGISTRY_NAME);
 
-            if (remoteServer.checkName(args[1])) {
-                JOptionPane.showMessageDialog(null, "Username already exists: " + args[1] +
+            if (remoteServer.checkName(args[2])) {
+                JOptionPane.showMessageDialog(null, "Username already exists: " + args[2] +
                         "\n" + "Please try other name.", "Warning", JOptionPane.WARNING_MESSAGE);
                 System.exit(0);
             }
@@ -41,17 +43,17 @@ public class JoinWhiteBoard {
                 }
             }
 
-            boolean result = remoteServer.askAccess(args[1]);
+            boolean result = remoteServer.askAccess(args[2]);
             if (!result) {
                 JOptionPane.showMessageDialog(null, "Access denied, please contact the manager",
                         "Warning", JOptionPane.WARNING_MESSAGE);
                 System.exit(0);
             }
 
-            IRemoteClient remoteClient = new RemoteClient(args[1], false, remoteServer);
+            IRemoteClient remoteClient = new RemoteClient(args[2], false, remoteServer);
 
             remoteServer.signIn(remoteClient);
-            remoteServer.addUser(args[1]);
+            remoteServer.addUser(args[2]);
             remoteClient.init();
             System.out.println("Client connected to server");
             remoteClient.askUpdateList();
@@ -61,15 +63,23 @@ public class JoinWhiteBoard {
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 //System.err.println("CACHED FORCE CLOSING");
                 try {
-                    remoteServer.userClose(args[1]);
+                    remoteServer.userClose(args[2]);
                 } catch (IOException ignored) {
-                    System.err.println("Application shut down");
                 }
             }));
         } catch (Exception e) {
             System.err.println("Server not started");
             JOptionPane.showMessageDialog(null, "Server not started." +
                     " Manager have not create white board yet.", "Warning", JOptionPane.WARNING_MESSAGE);
+            System.exit(0);
+        }
+    }
+
+    private static void checkArgs(String[] args) {
+        if (args.length != 3) {
+            JOptionPane.showMessageDialog(null, "Arguments is not enough.\n" +
+                            "Format: <serverIPAddress> <serverPort> <username>",
+                    "Warning", JOptionPane.WARNING_MESSAGE);
             System.exit(0);
         }
     }

@@ -14,20 +14,25 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class CreateWhiteBoard {
-    private static String name = "Manager";
     public static void main(String[] args) {
+        // check arguments
+        checkArgs(args);
+        String serverIPAddress = args[0];
+        int serverPort = Integer.parseInt(args[1]);
+        String username = args[2];
+
         // Start server
-        Server server = new Server(args);
+        Server server = new Server(serverPort);
         server.start();
 
-        // Start Manager Whiteboard
+        // start Manager Whiteboard
         try {
-            Registry registry = LocateRegistry.getRegistry("localhost", Integer.parseInt(args[0]));
+            Registry registry = LocateRegistry.getRegistry(serverIPAddress, serverPort);
 
             IRemoteServer remoteServer = (IRemoteServer) registry.lookup(ClientParams.REGISTRY_NAME);
-            IRemoteClient remoteClient = new RemoteClient(name, true, remoteServer);
+            IRemoteClient remoteClient = new RemoteClient(username, true, remoteServer);
 
-            remoteServer.setManagerName(name);
+            remoteServer.setManagerName(username);
             remoteServer.signIn(remoteClient);
             remoteClient.init();
             System.out.println("Client connected to server");
@@ -37,6 +42,15 @@ public class CreateWhiteBoard {
         } catch (Exception e) {
             System.err.println("ERROR: " + e);
             JOptionPane.showMessageDialog(null, "Error occurs",
+                    "Warning", JOptionPane.WARNING_MESSAGE);
+            System.exit(0);
+        }
+    }
+
+    private static void checkArgs(String[] args) {
+        if (args.length != 3) {
+            JOptionPane.showMessageDialog(null, "Arguments is not enough.\n" +
+                            "Format: <serverIPAddress> <serverPort> <username>",
                     "Warning", JOptionPane.WARNING_MESSAGE);
             System.exit(0);
         }

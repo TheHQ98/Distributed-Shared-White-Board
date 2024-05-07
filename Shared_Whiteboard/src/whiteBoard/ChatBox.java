@@ -82,7 +82,7 @@ public class ChatBox extends JPanel {
             try {
                 sendMessage();
             } catch (IOException ex) {
-                throw new RuntimeException(ex);
+                System.err.println("IO ERROR");
             }
         });
 

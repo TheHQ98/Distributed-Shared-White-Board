@@ -124,7 +124,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
                         try {
                             serverDB.removeUser(client.getName());
                         } catch (RemoteException e) {
-                            throw new RuntimeException(e);
+                            System.err.println("RMI Error");
                         }
                     }
                 });
@@ -227,13 +227,13 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
                         try {
                             client.askCloseCanvas();
                         } catch (RemoteException e) {
-                            throw new RuntimeException(e);
+                            System.err.println("RMI Error");
                         }
                     });
                     t.start();
                 }
             } catch (RemoteException e) {
-                throw new RuntimeException(e);
+                System.err.println("RMI Error");
             }
         }
         broadcastSystemMessage("SYSTEM: Manager closed canvas.");

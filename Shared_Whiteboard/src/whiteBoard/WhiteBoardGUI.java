@@ -73,17 +73,9 @@ public class WhiteBoardGUI {
                         try {
                             remoteServer.managerLeave();
                         } catch (RemoteException e) {
-                            throw new RuntimeException(e);
+                            ClientParams.RMI_CONNECT_ERROR();
+                            System.err.println("RemoteException: " + e);
                         }
-                    } else {
-                        //System.out.println(userID + " left the room.");
-//                        try {
-//                            remoteServer.removeUser(userID);
-//                        } catch (RemoteException e) {
-//                            e.printStackTrace();
-//                        } catch (IOException e) {
-//                            throw new RuntimeException(e);
-//                        }
                     }
                     frame.dispose();
                     System.exit(0);
@@ -109,7 +101,8 @@ public class WhiteBoardGUI {
                     try {
                         newFile();
                     } catch (IOException ex) {
-                        throw new RuntimeException(ex);
+                        ClientParams.IO_ERROR();
+                        System.err.println("IOException: " + ex);
                     }
                 }
             });
@@ -150,7 +143,8 @@ public class WhiteBoardGUI {
                     try {
                         close();
                     } catch (IOException ex) {
-                        throw new RuntimeException(ex);
+                        ClientParams.IO_ERROR();
+                        System.err.println("IOException: " + ex);
                     }
                 }
             });
@@ -180,16 +174,34 @@ public class WhiteBoardGUI {
     private void openFile() {
         FileDialog fileDialog = new FileDialog(frame, "Open", FileDialog.LOAD);
         fileDialog.setVisible(true);
+
         if (fileDialog.getFile() != null) {
-            filePath = fileDialog.getDirectory() + fileDialog.getFile();
-            try {
-                BufferedImage image = ImageIO.read(new File(filePath));
-                drawPanel.renderFrame(image);
-                drawPanel.sendSavedImage(image);
-                remoteServer.updateCanvas();
-                remoteServer.broadcastSystemMessage("SYSTEM: Manager opened a exist canvas");
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
+            if (drawPanel.getIsClosed()) {
+                filePath = fileDialog.getDirectory() + fileDialog.getFile();
+                try {
+                    BufferedImage image = ImageIO.read(new File(filePath));
+                    drawPanel.renderFrame(image);
+                    drawPanel.sendSavedImage(image);
+                    remoteServer.updateCanvas();
+                    remoteServer.broadcastSystemMessage("SYSTEM: Manager opened a exist canvas");
+                } catch (IOException ex) {
+                    ClientParams.IO_ERROR();
+                    System.err.println("IOException: " + ex);
+                }
+                drawPanel.changeIsClosedState(false);
+                JOptionPane.showMessageDialog(frame, "Canvas opened", "Canvas", JOptionPane.WARNING_MESSAGE);
+            } else {
+                filePath = fileDialog.getDirectory() + fileDialog.getFile();
+                try {
+                    BufferedImage image = ImageIO.read(new File(filePath));
+                    drawPanel.renderFrame(image);
+                    drawPanel.sendSavedImage(image);
+                    remoteServer.updateCanvas();
+                    remoteServer.broadcastSystemMessage("SYSTEM: Manager opened a exist canvas");
+                } catch (IOException ex) {
+                    ClientParams.IO_ERROR();
+                    System.err.println("IOException: " + ex);
+                }
             }
         }
     }
@@ -199,7 +211,8 @@ public class WhiteBoardGUI {
             try {
                 ImageIO.write(drawPanel.getCanvasImage(), "png", new File(filePath));
             } catch (IOException ex) {
-                throw new RuntimeException(ex);
+                ClientParams.IO_ERROR();
+                System.err.println("IOException: " + ex);
             }
         } else {
             int answer = JOptionPane.showConfirmDialog(frame,
@@ -219,26 +232,17 @@ public class WhiteBoardGUI {
             try {
                 ImageIO.write(drawPanel.getCanvasImage(), "png", new File(filePath));
             } catch (IOException ex) {
-                throw new RuntimeException(ex);
+                ClientParams.IO_ERROR();
+                System.err.println("IOException: " + ex);
             }
         }
     }
 
     private void close() throws IOException {
-        //TODO
-//        int answer = JOptionPane.showConfirmDialog(frame,
-//                "Canvas will be close.\n" +
-//                        "Do you want to save the canvas?\n" +
-//                        "Press yes to save it as a file.", "Warning", JOptionPane.YES_NO_OPTION);
-//        if (answer == JOptionPane.YES_OPTION) {
-//            save();
-//        }
-
         if (drawPanel.getIsClosed()) {
             JOptionPane.showMessageDialog(frame, "Canvas already closed", "Canvas", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
 
         Object[] options = {"Save", "No", "Cancel"};
 
@@ -300,34 +304,30 @@ public class WhiteBoardGUI {
     }
 
     public void askCloseCanvas() throws RemoteException {
-//        SwingUtilities.invokeLater(() -> {
-//            JOptionPane.showMessageDialog(frame, "Manager closed the canvas. Do you want to reconnect?",
-//                    "Message from manager", JOptionPane.WARNING_MESSAGE);
-//        });
-
         int answer = JOptionPane.showConfirmDialog(frame,
                 "Manager closed the canvas. Do you want to reconnect?", "Warning", JOptionPane.YES_NO_OPTION);
         if (answer == JOptionPane.YES_OPTION) {
-            System.out.println(remoteServer.getIsClosedState());
             while (remoteServer.getIsClosedState()) {
-                Object[] options = {"Retry"};
-                JOptionPane.showOptionDialog(frame,
+                Object[] options = {"Retry", "Close"};
+                int result = JOptionPane.showOptionDialog(frame,
                         "Manager have not open a new file yet",
                         "Message from manager",
-                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.YES_NO_OPTION,
                         JOptionPane.WARNING_MESSAGE,
                         null,
                         options,
                         options[0]);
+                if (result == JOptionPane.YES_OPTION) {
+                    continue;
+                } else {
+                    Thread t = new Thread(() -> {
+                        frame.dispose();
+                        System.exit(0);
+                    });
+                    t.start();
+                }
             }
         } else {
-            try {
-                remoteServer.removeUser(userID);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
             Thread t = new Thread(() -> {
                 frame.dispose();
                 System.exit(0);
