@@ -1,4 +1,6 @@
 /**
+ * Parameters
+ *
  * @author Josh Feng, 1266669, chenhaof@student.unimelb.edu.au
  * @date 18 April 2024
  */
@@ -9,15 +11,19 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ClientParams {
+    // registry name
     public static final String REGISTRY_NAME = "SharedWhiteBoard";
 
+    // gui information
     public static final String GUI_TITLE = "White Board - ";
     public static final int GUI_WIDTH    = 800;
     public static final int GUI_HEIGHT   = 600;
     public static final int CANVAS_WIDTH        = GUI_WIDTH-210;
     public static final int CANVAS_HEIGHT        = GUI_HEIGHT-135;
 
+    // default pen size and font style
     public static final float DEFAULT_STROKE = 3.0f;
+    public static final String DEFAULT_FONT_STYLE = "Arial";
 
     // icons path
     public static final String ICON_LINE      = "line.png";

@@ -1,3 +1,11 @@
+/**
+ * ChatBox components
+ * includes a display of user list, chat log box and chat input box
+ *
+ * @author Josh Feng, 1266669, chenhaof@student.unimelb.edu.au
+ * @date 27 April 2024
+ */
+
 package whiteBoard;
 
 import remote.IRemoteServer;
@@ -23,31 +31,26 @@ public class ChatBox extends JPanel {
         this.remoteServer = remoteServer;
         this.userID = userID;
         this.isManager = isManager;
-
         init();
     }
 
     public void init() throws RemoteException {
         setLayout(new BorderLayout());
 
-        // 用户列表的初始化
+        // initial user list
         userModel = new DefaultListModel<>();
         userList = new JList<>(userModel);
         JScrollPane userListScrollPane = new JScrollPane(userList);
         userListScrollPane.setPreferredSize(new Dimension(200, 200));
 
+        // only allowed manager to double-click user list
         if (isManager) {
             userList.addMouseListener(new MouseAdapter() {
                 public void mouseClicked(MouseEvent evt) {
-                    // 获取点击的是哪个 JList
                     JList list = (JList)evt.getSource();
 
-                    // 双击鼠标检测
                     if (evt.getClickCount() == 2) {
-                        // 获取鼠标双击的项目的索引
                         int index = list.locationToIndex(evt.getPoint());
-
-                        // 获取该索引处的元素
                         String name = (String)list.getModel().getElementAt(index);
                         if (!name.equals(userID)) {
                             if(JOptionPane.showConfirmDialog(ChatBox.this,
@@ -59,7 +62,6 @@ public class ChatBox extends JPanel {
                                     System.err.println("Unable to remove: " + name);
                                 }
                             }
-
                         }
                     }
                 }
@@ -70,14 +72,15 @@ public class ChatBox extends JPanel {
         chatArea = remoteServer.getChatArea();
         chatArea.setEditable(false);
         JScrollPane chatScrollPane = new JScrollPane(chatArea);
-        chatScrollPane.setPreferredSize(new Dimension(200, 200)); // 设置聊天区域首选尺寸
+        chatScrollPane.setPreferredSize(new Dimension(200, 200));
 
-        // 聊天输入区域的初始化
+        // initial chat input box
         JPanel chatInputPanel = new JPanel();
-        chatInputField = new JTextField(); // 设置合适的列数或使用setPreferredSize
+        chatInputField = new JTextField();
         submitButton = new JButton("Enter");
         submitButton.setPreferredSize(new Dimension(50, 10));
 
+        // listen submit button
         submitButton.addActionListener(e -> {
             try {
                 sendMessage();
@@ -89,42 +92,40 @@ public class ChatBox extends JPanel {
         chatInputPanel.setLayout(new BorderLayout());
         chatInputPanel.add(chatInputField, BorderLayout.CENTER);
         chatInputPanel.add(submitButton, BorderLayout.EAST);
-        chatInputPanel.setPreferredSize(new Dimension(200, 200)); // 设置输入面板首选尺寸
+        chatInputPanel.setPreferredSize(new Dimension(200, 200));
 
-        // 聊天内容和输入区域的分割面板
+        // add split panel
         JSplitPane bottomSplitPane = new JSplitPane(
                 JSplitPane.VERTICAL_SPLIT,
                 chatScrollPane,
                 chatInputPanel
         );
-        bottomSplitPane.setDividerLocation(250); // 聊天区域与输入区域的分割线位置
-        bottomSplitPane.setResizeWeight(1); // 聊天区域在窗口调整时获取额外空间
+        bottomSplitPane.setDividerLocation(250);
+        bottomSplitPane.setResizeWeight(1);
 
-        // 总体分割面板（用户列表和下半部分的组合）
         JSplitPane splitPane = new JSplitPane(
                 JSplitPane.VERTICAL_SPLIT,
                 userListScrollPane,
                 bottomSplitPane
         );
-        splitPane.setDividerLocation(150); // 用户列表和聊天区域的分割线位置
-        splitPane.setResizeWeight(0); // 用户列表在窗口调整时不获取额外空间
+        splitPane.setDividerLocation(150);
+        splitPane.setResizeWeight(0);
 
-        // 添加总体分割面板到主面板
         add(splitPane, BorderLayout.CENTER);
     }
 
 
-    // 更新用户列表的方法
+    // get latest user list from server
     public void updateUserList() throws RemoteException {
-//        userModel.addElement(user);
         remoteServer.updateList();
     }
 
-    // 添加消息到聊天区域的方法
+    // add new message to chat log box
     public void appendMessage(String message) {
         chatArea.append(message + "\n");
     }
 
+    // send message to server
     private void sendMessage() throws IOException {
         String message = chatInputField.getText();
         if (!message.isEmpty()) {
@@ -133,24 +134,29 @@ public class ChatBox extends JPanel {
         }
     }
 
+    // send message to server
     public void broadcastMessage(String message) throws IOException {
         remoteServer.broadcastMessage(message, userID);
     }
 
+    // get message from server
     public void syncMessage(String message) {
         SwingUtilities.invokeLater(() -> {
             appendMessage(message);
         });
     }
 
+    // send join message to server
     public void broadcastJoinMessage(String message) throws IOException {
         remoteServer.broadcastSystemMessage(message);
     }
 
+    // send join message to server
     public void joinMessage() throws IOException {
         broadcastJoinMessage("SYSTEM: " + userID + " joined");
     }
 
+    // update user list from server
     public void syncList(DefaultListModel<String> tempModel) {
         SwingUtilities.invokeLater(() -> {
             userModel.clear();
@@ -162,6 +168,7 @@ public class ChatBox extends JPanel {
         });
     }
 
+    // manager double-click the user list and ask someone to leave
     private void askQuit(String name) throws IOException {
         remoteServer.askQuit(name);
         userModel.removeElement(name);

@@ -1,3 +1,11 @@
+/**
+ * Server side
+ * Server will create a remoteServer and create registry
+ *
+ * @author Josh Feng, 1266669, chenhaof@student.unimelb.edu.au
+ * @date 22 April 2024
+ */
+
 package server;
 
 import remote.IRemoteServer;
@@ -15,6 +23,7 @@ public class Server {
         this.serverPort = serverPort;
     }
 
+    // create RemoteServer, create registry and bind
     public void start() {
         try {
             IRemoteServer remoteServer = new RemoteServer();

@@ -1,3 +1,11 @@
+/**
+ * Server database
+ * user for store the manager and user list, also store chat log
+ *
+ * @author Josh Feng, 1266669, chenhaof@student.unimelb.edu.au
+ * @date 27 April 2024
+ */
+
 package server;
 
 import javax.swing.*;
@@ -8,13 +16,13 @@ public class ServerDB extends JFrame {
     private JTextArea chatArea;
 
     public ServerDB() {}
-
     public void init() {
         managerModel = new DefaultListModel<>();
         userModel = new DefaultListModel<>();
         chatArea = new JTextArea();
     }
 
+    // store manager name
     public void setManagerName(String manager) {
         SwingUtilities.invokeLater(() -> {
             managerModel.clear();
@@ -24,40 +32,43 @@ public class ServerDB extends JFrame {
         });
     }
 
+    // add new username into userModel
     public void updateUserList(String user) {
         userModel.addElement(user);
     }
 
+    // remove username from userModel
     public void removeUser(String user) {
         userModel.removeElement(user);
     }
 
+    // remove manager from managerModel
     public void removeManager(String manager) {
         managerModel.removeElement(manager);
     }
 
+    // get all usernames from userModel and managerModel
     public DefaultListModel<String> getList() {
         DefaultListModel<String> tempModel = new DefaultListModel<>();
 
-        // 添加 managerModel 的所有元素
         for (int i = 0; i < managerModel.size(); i++) {
             tempModel.addElement(managerModel.get(i));
         }
-
-        // 添加 userModel 的所有元素
         for (int i = 0; i < userModel.size(); i++) {
             tempModel.addElement(userModel.get(i));
         }
-        //System.out.println(tempModel.size());
+
         return tempModel;
     }
 
+    // add new message into chatArea
     public void updateCharArea(String message) {
         SwingUtilities.invokeLater(() -> {
             chatArea.append(message + "\n");
         });
     }
 
+    // get chat log
     public JTextArea getChatArea() {
         return chatArea;
     }

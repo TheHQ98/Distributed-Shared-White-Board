@@ -1,4 +1,6 @@
 /**
+ * user side GUI
+ * allow user draw, select tool type, select colour, check user list, check message and send message
  * @author Josh Feng, 1266669, chenhaof@student.unimelb.edu.au
  * @date 18 April 2024
  */
@@ -23,7 +25,6 @@ import java.rmi.RemoteException;
 
 public class WhiteBoardGUI {
     private JFrame frame;
-    private final String userID;
     private final boolean isManager;
     DrawPanel drawPanel;
     private String filePath;
@@ -31,10 +32,10 @@ public class WhiteBoardGUI {
     private IRemoteServer remoteServer;
 
     public WhiteBoardGUI(String userID, boolean isManager, IRemoteServer remoteServer) throws IOException {
-        this.userID = userID;
         this.isManager = isManager;
         this.remoteServer = remoteServer;
 
+        // basic information
         frame = new JFrame();
         frame.setTitle(ClientParams.GUI_TITLE + userID);
         frame.setSize(ClientParams.GUI_WIDTH, ClientParams.GUI_HEIGHT);
@@ -42,8 +43,10 @@ public class WhiteBoardGUI {
 
         // set menu bar
         menuBar();
+
         // set toolbar
         ToolBar toolBar = new ToolBar();
+
         // set draw canvas
         drawPanel = new DrawPanel(toolBar, remoteServer, isManager, userID);
         frame.add(drawPanel, BorderLayout.CENTER);
@@ -89,8 +92,9 @@ public class WhiteBoardGUI {
         JMenuBar menuBar = new JMenuBar();
         frame.setJMenuBar(menuBar);
 
+        // only for manager
         if (isManager) {
-            // Create file menu
+            // create file menu
             JMenu fileMenu = new JMenu("File");
             menuBar.add(fileMenu);
 
@@ -153,6 +157,7 @@ public class WhiteBoardGUI {
         frame.setJMenuBar(menuBar);
     }
 
+    // new canvas method
     private void newFile() throws IOException {
         if (drawPanel.getIsClosed()) {
             remoteServer.newCanvas();
@@ -171,6 +176,7 @@ public class WhiteBoardGUI {
         }
     }
 
+    // open an exist canvas
     private void openFile() {
         FileDialog fileDialog = new FileDialog(frame, "Open", FileDialog.LOAD);
         fileDialog.setVisible(true);
@@ -206,6 +212,7 @@ public class WhiteBoardGUI {
         }
     }
 
+    // save current canvas method
     private void save() {
         if (filePath != null) {
             try {
@@ -224,6 +231,7 @@ public class WhiteBoardGUI {
         }
     }
 
+    // saveAs current canvas method
     private void saveAs() {
         FileDialog fileDialog = new FileDialog(frame, "Save As", FileDialog.SAVE);
         fileDialog.setVisible(true);
@@ -238,14 +246,15 @@ public class WhiteBoardGUI {
         }
     }
 
+    // close current canvas method
     private void close() throws IOException {
         if (drawPanel.getIsClosed()) {
-            JOptionPane.showMessageDialog(frame, "Canvas already closed", "Canvas", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Canvas already closed",
+                    "Canvas", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         Object[] options = {"Save", "No", "Cancel"};
-
         int answer = JOptionPane.showOptionDialog(frame,
                 "Canvas will be closed.\n" +
                         "Do you want to save the canvas?",
@@ -267,42 +276,52 @@ public class WhiteBoardGUI {
         remoteServer.closeCanvas();
     }
 
+    // server ask for sync canvas
     public void syncCanvas(IRemoteCanvas remoteCanvas) throws RemoteException {
         drawPanel.syncCanvas(remoteCanvas);
     }
 
+    // server ask for sync message
     public void syncMessage(String message) {
         chatBox.syncMessage(message);
     }
 
+    // manager ask server this user to quit
     public void askQuit(String managerName) {
         SwingUtilities.invokeLater(() -> {
-            JOptionPane.showMessageDialog(frame, "Manager(" + managerName + ") closed your access. whiteboard will be close", "Message from manager", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Manager(" + managerName + ") closed your access." +
+                    " whiteboard will be close", "Message from manager", JOptionPane.WARNING_MESSAGE);
             frame.dispose();
             System.exit(0);
         });
     }
 
+    // sync user list from server
     public void syncList(DefaultListModel<String> tempModel) {
         chatBox.syncList(tempModel);
     }
 
+    // update user list from server
     public void askUpdateList() throws RemoteException {
         chatBox.updateUserList();
     }
 
+    // add system join message
     public void askJoinMessage() throws IOException {
         chatBox.joinMessage();
     }
 
+    // ask clean the canvas
     public void askCleanCanvas() {
         drawPanel.newCanvas();
     }
 
+    // get canvas from server
     public void askGetCanvasFromServer(byte[] imageData) throws IOException {
         drawPanel.getCanvasFromServer(imageData);
     }
 
+    // ask close canvas
     public void askCloseCanvas() throws RemoteException {
         int answer = JOptionPane.showConfirmDialog(frame,
                 "Manager closed the canvas. Do you want to reconnect?", "Warning", JOptionPane.YES_NO_OPTION);
@@ -336,6 +355,7 @@ public class WhiteBoardGUI {
         }
     }
 
+    // ask access
     public boolean requestAccess(String name) {
         drawPanel.askRender();
         int answer = JOptionPane.showConfirmDialog(frame,
@@ -346,6 +366,7 @@ public class WhiteBoardGUI {
         return false;
     }
 
+    // get is closed state from manager
     public boolean getIsClosedState() {
         return drawPanel.getIsClosed();
     }

@@ -1,4 +1,6 @@
 /**
+ * RMI Server
+ *
  * @author Josh Feng, 1266669, chenhaof@student.unimelb.edu.au
  * @date 27 April 2024
  */
@@ -20,15 +22,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
-    private static BufferedImage frame;
-    private String managerName;
-    private Set<IRemoteClient> userList;
+    private static BufferedImage image;       // server side will back up latest canvas image
+    private String managerName;               // store manager name
+    private Set<IRemoteClient> userList;      // store all the users
     private ServerDB serverDB;
 
     public RemoteServer() throws RemoteException {
         super();
         this.userList = Collections.newSetFromMap(new ConcurrentHashMap<>());
-
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 serverDB = new ServerDB();
@@ -37,32 +38,35 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         });
     }
 
+    // send canvas image to new user
     @Override
     public byte[] updateImage() throws IOException {
-        if (frame != null) {
+        if (image != null) {
             ByteArrayOutputStream data = new ByteArrayOutputStream();
-            ImageIO.write(frame, "png", data);
+            ImageIO.write(image, "png", data);
             return data.toByteArray();
         }
         return null;
     }
 
+    // get the latest canvas image from user side
     @Override
-    public void getImage(byte[] imageData, String name) throws IOException {
-        frame = byteArrayToImage(imageData);
-        // TODO no need name
+    public void getImage(byte[] imageData) throws IOException {
+        image = byteArrayToImage(imageData);
     }
 
+    // ask all user to sync canvas
     @Override
     public void broadcastCanvas(IRemoteCanvas remoteCanvas) throws IOException {
         for (IRemoteClient client : userList) {
-            if (client.getName().equals(remoteCanvas.getName())) {
+            if (client.getUserID().equals(remoteCanvas.getUserID())) {
             } else {
                 client.syncCanvas(remoteCanvas);
             }
         }
     }
 
+    // convert bufferedImage to byteArray
     @Override
     public byte[] imageToByteArray(BufferedImage image) throws IOException {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
@@ -70,17 +74,20 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         return data.toByteArray();
     }
 
+    // convert byteArray to bufferedImage
     @Override
     public BufferedImage byteArrayToImage(byte[] imageData) throws IOException {
         ByteArrayInputStream data = new ByteArrayInputStream(imageData);
         return ImageIO.read(data);
     }
 
+    // sign in new user
     @Override
     public void signIn(IRemoteClient remoteClient) throws RemoteException {
         userList.add(remoteClient);
     }
 
+    // set manager name
     @Override
     public void setManagerName(String name) throws RemoteException {
         this.managerName = name;
@@ -91,6 +98,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         });
     }
 
+    // add new username into serverDB
     @Override
     public void addUser(String name) throws RemoteException {
         SwingUtilities.invokeLater(new Runnable() {
@@ -100,10 +108,11 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         });
     }
 
+    // remove username from serverDB
     @Override
     public void removeUser(String name) throws IOException {
         for (IRemoteClient client : userList) {
-            if (client.getName().equals(name)) {
+            if (client.getUserID().equals(name)) {
                 userList.remove(client);
                 serverDB.removeUser(name);
                 break;
@@ -113,16 +122,17 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         broadcastSystemMessage("SYSTEM: " + name  + " has left.");
     }
 
+    // manager quit, ask all user to quit
     @Override
     public void managerLeave() throws RemoteException {
         for (IRemoteClient client : userList) {
-            if (client.getName().equals(managerName)) {
+            if (client.getUserID().equals(managerName)) {
             } else {
                 userList.remove(client);
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         try {
-                            serverDB.removeUser(client.getName());
+                            serverDB.removeUser(client.getUserID());
                         } catch (RemoteException e) {
                             System.err.println("RMI Error");
                         }
@@ -133,7 +143,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         }
 
         for (IRemoteClient client : userList) {
-            if (client.getName().equals(managerName)) {
+            if (client.getUserID().equals(managerName)) {
                 userList.remove(client);
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
@@ -144,28 +154,29 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         }
     }
 
+    // sync message to all user
     @Override
     public void broadcastMessage(String message, String name) throws IOException {
         for (IRemoteClient client : userList) {
-            if (client.getName().equals(name)) {
+            if (client.getUserID().equals(name)) {
                 client.syncMessage("You: " + message);
             } else {
                 client.syncMessage(name + ": " + message);
             }
         }
-
-        //TODO Send message to database
-        updateCharArea(name + ": " + message);
+        updateChatArea(name + ": " + message);
     }
 
+    // sync system message to all user
     @Override
     public void broadcastSystemMessage(String message) throws IOException {
         for (IRemoteClient client : userList) {
             client.syncMessage(message);
         }
-        updateCharArea(message);
+        updateChatArea(message);
     }
 
+    // update user list to all user
     @Override
     public void updateList() throws RemoteException {
         DefaultListModel<String> tempModel = serverDB.getList();
@@ -174,13 +185,14 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         }
     }
 
+    // ask someone to quit
     @Override
     public void askQuit(String name) throws RemoteException {
         for (IRemoteClient client : userList) {
-            if (client.getName().equals(name)) {
+            if (client.getUserID().equals(name)) {
                 userList.remove(client);
                 try {
-                    serverDB.removeUser(client.getName());
+                    serverDB.removeUser(client.getUserID());
                 } catch (RemoteException e) {
                     System.err.println("RMI Error");
                 }
@@ -190,16 +202,19 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         updateList();
     }
 
+    // serverDB update chat log
     @Override
-    public void updateCharArea(String message) throws RemoteException {
+    public void updateChatArea(String message) throws RemoteException {
         serverDB.updateCharArea(message);
     }
 
+    // get chat log from serverDB
     @Override
     public JTextArea getChatArea() throws RemoteException {
         return serverDB.getChatArea();
     }
 
+    // ask all user to open a new canvas
     @Override
     public void newCanvas() throws IOException {
         for (IRemoteClient client : userList) {
@@ -208,21 +223,23 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         broadcastSystemMessage("SYSTEM: Manager opened a new canvas.");
     }
 
+    // manager opened a exist canvas, ask all user to update canvas
     @Override
     public void updateCanvas() throws IOException {
         for (IRemoteClient client : userList) {
-            if (client.getName().equals(managerName)) {
+            if (client.getUserID().equals(managerName)) {
             } else {
-                client.getCanvasFromServer(imageToByteArray(frame));
+                client.getCanvasFromServer(imageToByteArray(image));
             }
         }
     }
 
+    // manager close the canvas, ask all user to close canvas
     @Override
     public void closeCanvas() throws IOException {
         for (IRemoteClient client : userList) {
             try {
-                if (!client.getName().equals(managerName)) {
+                if (!client.getUserID().equals(managerName)) {
                     Thread t = new Thread(() -> {
                         try {
                             client.askCloseCanvas();
@@ -239,41 +256,43 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
         broadcastSystemMessage("SYSTEM: Manager closed canvas.");
     }
 
+    // new user ask manager to get access
     @Override
     public boolean askAccess(String name) throws RemoteException {
         for (IRemoteClient client : userList) {
-            if (client.getName().equals(managerName)) {
+            if (client.getUserID().equals(managerName)) {
                 return client.askRequest(name);
             }
         }
         return false;
     }
 
+    // check is the new username already exist in the server
     @Override
     public boolean checkName(String name) throws RemoteException {
         if (name.equals(managerName)){
             return true;
         }
-
         for (IRemoteClient client : userList) {
-            if (client.getName().equals(name)) {
+            if (client.getUserID().equals(name)) {
                 return true;
             }
         }
-
         return false;
     }
 
+    // check is the manager is closed canvas
     @Override
     public boolean getIsClosedState() throws RemoteException {
         for (IRemoteClient client : userList) {
-            if (client.getName().equals(managerName)) {
+            if (client.getUserID().equals(managerName)) {
                 return client.getIsClosedState();
             }
         }
         return false;
     }
 
+    // user shut down the application
     @Override
     public void userClose(String name) throws IOException {
         removeUser(name);

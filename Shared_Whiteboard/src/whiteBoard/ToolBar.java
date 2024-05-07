@@ -1,4 +1,5 @@
 /**
+ * Toolbar panel, allow user to select tool type and colour
  * @author Josh Feng, 1266669, chenhaof@student.unimelb.edu.au
  * @date 18 April 2024
  */
@@ -51,7 +52,7 @@ public class ToolBar extends JPanel {
     private void init() {
         this.setLayout(new BorderLayout());
 
-        // setup toolbar
+        // setup tool types
         toolBar.setLayout(new GridLayout(2, 4));
         String[] iconImg = {
                 ClientParams.ICON_LINE,
@@ -63,6 +64,7 @@ public class ToolBar extends JPanel {
                 ClientParams.ICON_TEXT
         };
 
+        // render images
         for (String iconName : iconImg) {
             URL imageUrl = getClass().getClassLoader().getResource(iconName);
             if (imageUrl == null) {
@@ -93,7 +95,6 @@ public class ToolBar extends JPanel {
             button.setBorderPainted(false);
             button.addActionListener(e -> {
                 colorType = new Color(color.getRGB());
-//                System.out.println("Selected color: " + colorType);
             });
             colorBar.add(button);
         }

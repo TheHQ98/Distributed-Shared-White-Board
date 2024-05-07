@@ -1,4 +1,6 @@
 /**
+ * RMI Server
+ *
  * @author Josh Feng, 1266669, chenhaof@student.unimelb.edu.au
  * @date 27 April 2024
  */
@@ -13,7 +15,7 @@ import java.rmi.RemoteException;
 
 public interface IRemoteServer extends Remote {
     byte[] updateImage() throws IOException;
-    void getImage(byte[] imageData, String name) throws IOException;
+    void getImage(byte[] imageData) throws IOException;
     void broadcastCanvas(IRemoteCanvas remoteCanvas) throws IOException;
     byte[] imageToByteArray(BufferedImage image) throws IOException;
     BufferedImage byteArrayToImage(byte[] imageData) throws IOException;
@@ -26,7 +28,7 @@ public interface IRemoteServer extends Remote {
     void broadcastSystemMessage(String message) throws IOException;
     void updateList() throws RemoteException;
     void askQuit(String name) throws RemoteException;
-    void updateCharArea(String message) throws RemoteException;
+    void updateChatArea(String message) throws RemoteException;
     JTextArea getChatArea() throws RemoteException;
     void newCanvas() throws IOException;
     void updateCanvas() throws IOException;

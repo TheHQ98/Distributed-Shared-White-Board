@@ -1,4 +1,6 @@
 /**
+ * Draw Panel create Graphics2D allow user to draw something
+ *
  * @author Josh Feng, 1266669, chenhaof@student.unimelb.edu.au
  * @date 18 April 2024
  */
@@ -32,7 +34,7 @@ public class DrawPanel extends JPanel {
     private String toolType;
     private Graphics2D g2d;
     private BufferedImage frame;
-    private BufferedImage savedFrame;
+    private BufferedImage savedFrame;        // use for back up previous frame
     private IRemoteServer remoteServer;
     private boolean isManager;
     private String name;
@@ -63,9 +65,12 @@ public class DrawPanel extends JPanel {
         cleanCanvas();
     }
 
+    // override repaint() method
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        // only for first start, manager will create new canvas, and user will get canvas from server
         if (frame == null) {
             if (isManager) {
                 init();
@@ -85,40 +90,45 @@ public class DrawPanel extends JPanel {
                 }
             }
         }
+
+        // repaint method
         g.drawImage(frame, 0, 0, this);
     }
 
+    // render frame into canvas
     public void renderFrame(BufferedImage frame) {
         g2d.drawImage(frame, 0, 0, null);
         repaint();
     }
 
-    // Clean up the canvas
+    // clean the canvas
     public void cleanCanvas() {
         g2d.setPaint(Color.white);
         g2d.fillRect(0, 0, ClientParams.GUI_WIDTH, ClientParams.GUI_HEIGHT);
         g2d.setPaint(color);
     }
 
+    // initial the canvas
     public void newCanvas() {
         init();
         renderFrame(frame);
         sendImage();
     }
 
-    // Save the canvas as an image
+    // backup the canvas, save it into savedFrame
     public void saveCanvas() {
         ColorModel colorModel = frame.getColorModel();
         WritableRaster raster = frame.copyData(null);
         savedFrame = new BufferedImage(colorModel, raster, false, null);
     }
 
-    // Get image of the current canvas
+    // get image of the current canvas
     public BufferedImage getCanvasImage() {
         saveCanvas();
         return savedFrame;
     }
 
+    // user left click mouse
     private final MouseListener startListener = new MouseAdapter() {
         @Override
         public void mousePressed(java.awt.event.MouseEvent e) {
@@ -128,32 +138,38 @@ public class DrawPanel extends JPanel {
                         "Warning", JOptionPane.WARNING_MESSAGE);
                 return;
             }
+
             // get initial coordinates
             x1 = e.getX();
             y1 = e.getY();
             startPoint = new Point(x1, y1);
+
             // get current color
             color = toolBar.getColor();
+
             // get tool tye
             toolType = toolBar.getToolType();
             saveCanvas();
+            isMotion = true;
 
+            // open text input panel
             if (ClientParams.TEXT.equals(toolType)) {
                 textInput();
+                isMotion = false;
             }
-
-            isMotion = true;
         }
     };
 
+    // user click left mouse and start move the mouse
     private final MouseMotionAdapter motionLister = new MouseMotionAdapter() {
         @Override
         public void mouseDragged(java.awt.event.MouseEvent e) {
-            // get final coordinates
+            // get final coordinates and draw size
             x2 = e.getX();
             y2 = e.getY();
-
             g2d.setStroke(new BasicStroke(ClientParams.DEFAULT_STROKE));
+
+            // implement different effect base on toolType
             if (ClientParams.LINE.equals(toolType)) {
                 renderFrame(savedFrame);
                 g2d.setColor(color);
@@ -217,11 +233,13 @@ public class DrawPanel extends JPanel {
         }
     };
 
+    // use release left click
     private final MouseListener endListener = new MouseAdapter() {
         @Override
         public void mouseReleased(java.awt.event.MouseEvent e) {
-            System.out.println("Mouse Released");
             endPoint = new Point(x2, y2);
+
+            // wrap data and send to server
             try {
                 RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint,
                         name, null, 0, toolBar.getEraserSize());
@@ -236,25 +254,27 @@ public class DrawPanel extends JPanel {
 
             // make sure new client get latest canvas
             sendImage();
-            debug();
-            // FIXME: COULD BE WRONG
+            //debug();
             repaint();
             isMotion = false;
             x1 = x2 = y1 = y2 = 0;
         }
     };
 
+    // user want to add text in canvas
     private void textInput() {
+        // create a custom panel
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
+        // add text input
         JTextField text = new JTextField(10);
         JLabel textLabel = new JLabel("Type your text");
         panel.add(textLabel);
         panel.add(text);
 
-
-        SpinnerNumberModel spinnerModel = new SpinnerNumberModel(30, 10, 50, 5);
+        // allow user to select font size
+        SpinnerNumberModel spinnerModel = new SpinnerNumberModel(30, 15, 50, 5);
         JSpinner fontSize = new JSpinner(spinnerModel);
         JLabel fontLabel = new JLabel("Select font size (Default 30):");
         panel.add(fontLabel);
@@ -266,9 +286,8 @@ public class DrawPanel extends JPanel {
         if (result == JOptionPane.OK_OPTION) {
             renderFrame(savedFrame);
             g2d.setColor(color);
-            g2d.setFont(new Font("Arial", Font.PLAIN, (Integer) fontSize.getValue()));
+            g2d.setFont(new Font(ClientParams.DEFAULT_FONT_STYLE, Font.PLAIN, (Integer) fontSize.getValue()));
             g2d.drawString(text.getText(), x1, y1);
-
             endPoint = new Point(x2, y2);
             try {
                 RemoteCanvas remoteCanvas = new RemoteCanvas(toolType, color, startPoint, endPoint,
@@ -285,48 +304,54 @@ public class DrawPanel extends JPanel {
             // make sure new client get latest canvas
             sendImage();
         }
-
     }
 
+    // covert buffer image to byteArray
     private byte[] imageToByteArray(BufferedImage image) throws IOException {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         ImageIO.write(image, "png", data);
         return data.toByteArray();
     }
 
+    // convert byteArray to buffer image
     private BufferedImage byteArrayToImage(byte[] imageData) throws IOException {
         ByteArrayInputStream data = new ByteArrayInputStream(imageData);
         return ImageIO.read(data);
     }
 
+    // send frame to server
     public void sendImage() {
         try {
             byte[] imageData = imageToByteArray(frame);
-            remoteServer.getImage(imageData, name);
+            remoteServer.getImage(imageData);
         } catch (IOException ex) {
             ClientParams.IO_ERROR();
             System.err.println("IOException: " + ex);
         }
     }
 
+    // send saved frame to server
     public void sendSavedImage(BufferedImage savedFrame) {
         try {
             byte[] imageData = imageToByteArray(savedFrame);
-            remoteServer.getImage(imageData, name);
+            remoteServer.getImage(imageData);
         } catch (IOException ex) {
             ClientParams.IO_ERROR();
             System.err.println("IOException: " + ex);
         }
     }
 
+    // sync draw from other users
     public void syncCanvas(IRemoteCanvas remoteCanvas) throws RemoteException {
-        //TODO may wrong
-        if (Objects.equals(remoteCanvas.getEndPoint(), new Point(0, 0))) {
-            return;
+        if (!remoteCanvas.getToolType().equals(ClientParams.TEXT)) {
+            if (Objects.equals(remoteCanvas.getEndPoint(), new Point(0, 0))) {
+                return;
+            }
+            if (Objects.equals(remoteCanvas.getStartPoint(), new Point(0, 0))) {
+                return;
+            }
         }
-        if (Objects.equals(remoteCanvas.getStartPoint(), new Point(0, 0))) {
-            return;
-        }
+
         g2d.setStroke(new BasicStroke(ClientParams.DEFAULT_STROKE));
         if (ClientParams.DRAW.equals(remoteCanvas.getToolType())) {
             g2d.setColor(remoteCanvas.getColor());
@@ -365,7 +390,7 @@ public class DrawPanel extends JPanel {
         } else if (ClientParams.TEXT.equals(remoteCanvas.getToolType())) {
             Point point = remoteCanvas.getStartPoint();
             g2d.setColor(remoteCanvas.getColor());
-            g2d.setFont(new Font("Arial", Font.PLAIN, remoteCanvas.getTextSize()));
+            g2d.setFont(new Font(ClientParams.DEFAULT_FONT_STYLE, Font.PLAIN, remoteCanvas.getTextSize()));
             g2d.drawString(remoteCanvas.getText(), point.x, point.y);
         } else if (ClientParams.ERASER.equals(remoteCanvas.getToolType())) {
             g2d.setColor(Color.WHITE);
@@ -379,15 +404,18 @@ public class DrawPanel extends JPanel {
         repaint();
     }
 
+    // get frame from server
     public void getCanvasFromServer(byte[] imageData) throws IOException {
         savedFrame = byteArrayToImage(imageData);
         renderFrame(savedFrame);
     }
 
+    // change isClosed state
     public void changeIsClosedState(boolean state) {
         isClosed = state;
     }
 
+    // get isClosed state
     public boolean getIsClosed() {
         return isClosed;
     }
@@ -398,6 +426,7 @@ public class DrawPanel extends JPanel {
         System.out.println("DEBUG-Draw: " + toolType + " Point: " + startPoint + " " + endPoint);
     }
 
+    // ask for render savedFrame
     public void askRender() {
         if (isMotion) {
             renderFrame(savedFrame);
