@@ -89,8 +89,8 @@ public class JoinWhiteBoard {
             }));
         } catch (Exception e) {
             System.err.println("Server not started");
-            JOptionPane.showMessageDialog(null, "Server not started." +
-                    " Manager have not create white board yet.", "Warning", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Server not found." +
+                    " Check your ip address or port number.", "Warning", JOptionPane.WARNING_MESSAGE);
             System.exit(0);
         }
     }

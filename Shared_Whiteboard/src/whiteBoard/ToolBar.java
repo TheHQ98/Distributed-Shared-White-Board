@@ -18,6 +18,7 @@ public class ToolBar extends JPanel {
     private String toolType;
     private Color colorType;
     private JLabel currentTool;
+    private JLabel currentColor;
     private float eraserSize = 50.00f;
     private static final Color[] colors = {
             ClientParams.SILVER,
@@ -46,6 +47,7 @@ public class ToolBar extends JPanel {
         eraserSizePanel = new JPanel();
         sizeBar = new JPanel();
         currentTool = new JLabel("Current tool: " + toolType);
+        currentColor = new JLabel("Current color: " + colorToString(colorType));
         init();
     }
 
@@ -95,6 +97,7 @@ public class ToolBar extends JPanel {
             button.setBorderPainted(false);
             button.addActionListener(e -> {
                 colorType = new Color(color.getRGB());
+                currentColor.setText("Current color: " + colorToString(colorType));
             });
             colorBar.add(button);
         }
@@ -138,9 +141,15 @@ public class ToolBar extends JPanel {
         eraserSizePanel.add(sizeValueLabel);
         this.add(eraserSizePanel, BorderLayout.CENTER);
 
-
-        currentTool.setAlignmentX(Component.CENTER_ALIGNMENT);
-        this.add(currentTool, BorderLayout.NORTH);
+        // add current tool and color labels to north panel
+        JPanel northPanel = new JPanel();
+        northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.X_AXIS));
+        currentTool.setAlignmentX(Component.LEFT_ALIGNMENT);
+        currentColor.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        northPanel.add(currentTool);
+        northPanel.add(Box.createHorizontalGlue());
+        northPanel.add(currentColor);
+        this.add(northPanel, BorderLayout.NORTH);
     }
 
     public String getToolType() {
@@ -153,5 +162,43 @@ public class ToolBar extends JPanel {
 
     public float getEraserSize() {
         return eraserSize;
+    }
+
+    public String colorToString(Color color) {
+        if (color.equals(ClientParams.SILVER)) {
+            return "SILVER";
+        } else if (color.equals(ClientParams.BLACK)) {
+            return "BLACK";
+        } else if (color.equals(ClientParams.RED)) {
+            return "RED";
+        } else if (color.equals(ClientParams.GREEN)) {
+            return "GREEN";
+        } else if (color.equals(ClientParams.BLUE)) {
+            return "BLUE";
+        } else if (color.equals(ClientParams.YELLOW)) {
+            return "YELLOW";
+        } else if (color.equals(ClientParams.ORANGE)) {
+            return "ORANGE";
+        } else if (color.equals(ClientParams.PINK)) {
+            return "PINK";
+        } else if (color.equals(ClientParams.PURPLE)) {
+            return "PURPLE";
+        } else if (color.equals(ClientParams.BROWN)) {
+            return "BROWN";
+        } else if (color.equals(ClientParams.CYAN)) {
+            return "CYAN";
+        } else if (color.equals(ClientParams.MAGENTA)) {
+            return "MAGENTA";
+        } else if (color.equals(ClientParams.LIME)) {
+            return "LIME";
+        } else if (color.equals(ClientParams.MAROON)) {
+            return "MAROON";
+        } else if (color.equals(ClientParams.NAVY)) {
+            return "NAVY";
+        } else if (color.equals(ClientParams.AQUA)) {
+            return "AQUA";
+        }
+
+        return "";
     }
 }

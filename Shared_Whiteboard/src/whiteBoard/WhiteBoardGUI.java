@@ -356,11 +356,15 @@ public class WhiteBoardGUI {
     }
 
     // ask access
-    public boolean requestAccess(String name) {
+    public boolean requestAccess(String name) throws RemoteException {
         drawPanel.askRender();
         int answer = JOptionPane.showConfirmDialog(frame,
-                name + " want to access the canvas", "Share Request", JOptionPane.YES_NO_OPTION);
+                name + " wants to share your whiteboard", "Share Request", JOptionPane.YES_NO_OPTION);
         if (answer == JOptionPane.YES_OPTION) {
+            // check name is exist again
+            if (remoteServer.checkName(name)) {
+                return false;
+            }
             return true;
         }
         return false;
