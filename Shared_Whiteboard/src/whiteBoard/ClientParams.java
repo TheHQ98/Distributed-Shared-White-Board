@@ -11,7 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ClientParams {
-    // registry name
+    // rmi registry name
     public static final String REGISTRY_NAME = "SharedWhiteBoard";
 
     // gui information
