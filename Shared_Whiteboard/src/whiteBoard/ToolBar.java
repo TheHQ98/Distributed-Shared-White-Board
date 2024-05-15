@@ -1,5 +1,6 @@
 /**
  * Toolbar panel, allow user to select tool type and colour
+ *
  * @author Josh Feng, 1266669, chenhaof@student.unimelb.edu.au
  * @date 18 April 2024
  */
@@ -76,7 +77,8 @@ public class ToolBar extends JPanel {
             ImageIcon image = new ImageIcon(imageUrl);
             JButton button = new JButton(image);
             button.setPreferredSize(new Dimension(36, 36));
-            String actionCommand = iconName.substring(iconName.lastIndexOf('/') + 1, iconName.lastIndexOf('.'));
+            String actionCommand = iconName.substring(iconName.lastIndexOf('/') + 1,
+                    iconName.lastIndexOf('.'));
             button.setActionCommand(actionCommand);
             button.addActionListener(e -> {
                 toolType = e.getActionCommand();
@@ -198,7 +200,6 @@ public class ToolBar extends JPanel {
         } else if (color.equals(ClientParams.AQUA)) {
             return "AQUA";
         }
-
         return "";
     }
 }

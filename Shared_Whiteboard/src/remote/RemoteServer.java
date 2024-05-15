@@ -30,12 +30,8 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
     public RemoteServer() throws RemoteException {
         super();
         this.userList = Collections.newSetFromMap(new ConcurrentHashMap<>());
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                serverDB = new ServerDB();
-                serverDB.init();
-            }
-        });
+        serverDB = new ServerDB();
+        serverDB.init();
     }
 
     // send canvas image to new user

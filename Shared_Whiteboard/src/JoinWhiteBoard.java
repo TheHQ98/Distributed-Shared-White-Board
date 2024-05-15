@@ -63,6 +63,8 @@ public class JoinWhiteBoard {
                 }
             }
 
+            System.out.println("Waiting for access by manager...");
+
             // ask manager to access
             boolean result = remoteServer.askAccess(username);
             if (!result) {
@@ -73,13 +75,13 @@ public class JoinWhiteBoard {
 
             // create whiteboard and open GUI
             IRemoteClient remoteClient = new RemoteClient(username, false, remoteServer);
+            remoteClient.init();
             remoteServer.signIn(remoteClient);
             remoteServer.addUser(username);
-            remoteClient.init();
             System.out.println("Client connected to server");
             remoteClient.askUpdateList();
             remoteClient.systemJoinMessage();
-
+            System.out.println("Whiteboard ready");
             // Using for catch user quit, user may normally close the app, or force quit the app
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {

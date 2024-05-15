@@ -163,7 +163,8 @@ public class WhiteBoardGUI {
             remoteServer.newCanvas();
             filePath = null;
             drawPanel.changeIsClosedState(false);
-            JOptionPane.showMessageDialog(frame, "Canvas created", "Canvas", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Canvas created", "Canvas",
+                    JOptionPane.INFORMATION_MESSAGE);
         } else {
             int answer = JOptionPane.showConfirmDialog(frame,
                     "Are you sure you want to create a new canvas?\n" +
@@ -182,32 +183,27 @@ public class WhiteBoardGUI {
         fileDialog.setVisible(true);
 
         if (fileDialog.getFile() != null) {
+            filePath = fileDialog.getDirectory() + fileDialog.getFile();
+            try {
+                if (!filePath.toLowerCase().endsWith(".png")) {
+                    JOptionPane.showMessageDialog(frame, "Please select a .png file",
+                            "Invalid File", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                BufferedImage image = ImageIO.read(new File(filePath));
+                drawPanel.renderFrame(image);
+                drawPanel.sendSavedImage(image);
+                remoteServer.updateCanvas();
+                remoteServer.broadcastSystemMessage("SYSTEM: Manager opened a exist canvas");
+            } catch (IOException ex) {
+                ClientParams.IO_ERROR();
+                System.err.println("IOException: " + ex);
+            }
+
             if (drawPanel.getIsClosed()) {
-                filePath = fileDialog.getDirectory() + fileDialog.getFile();
-                try {
-                    BufferedImage image = ImageIO.read(new File(filePath));
-                    drawPanel.renderFrame(image);
-                    drawPanel.sendSavedImage(image);
-                    remoteServer.updateCanvas();
-                    remoteServer.broadcastSystemMessage("SYSTEM: Manager opened a exist canvas");
-                } catch (IOException ex) {
-                    ClientParams.IO_ERROR();
-                    System.err.println("IOException: " + ex);
-                }
                 drawPanel.changeIsClosedState(false);
-                JOptionPane.showMessageDialog(frame, "Canvas opened", "Canvas", JOptionPane.WARNING_MESSAGE);
-            } else {
-                filePath = fileDialog.getDirectory() + fileDialog.getFile();
-                try {
-                    BufferedImage image = ImageIO.read(new File(filePath));
-                    drawPanel.renderFrame(image);
-                    drawPanel.sendSavedImage(image);
-                    remoteServer.updateCanvas();
-                    remoteServer.broadcastSystemMessage("SYSTEM: Manager opened a exist canvas");
-                } catch (IOException ex) {
-                    ClientParams.IO_ERROR();
-                    System.err.println("IOException: " + ex);
-                }
+                JOptionPane.showMessageDialog(frame, "Canvas opened", "Canvas",
+                        JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
@@ -324,7 +320,8 @@ public class WhiteBoardGUI {
     // ask close canvas
     public void askCloseCanvas() throws RemoteException {
         int answer = JOptionPane.showConfirmDialog(frame,
-                "Manager closed the canvas. Do you want to reconnect?", "Warning", JOptionPane.YES_NO_OPTION);
+                "Manager closed the canvas. Do you want to reconnect?", "Warning",
+                JOptionPane.YES_NO_OPTION);
         if (answer == JOptionPane.YES_OPTION) {
             while (remoteServer.getIsClosedState()) {
                 Object[] options = {"Retry", "Close"};

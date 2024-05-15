@@ -59,12 +59,13 @@ public class RemoteCanvas extends UnicastRemoteObject implements IRemoteCanvas {
         return endPoint;
     }
 
-    //
+    // get user ID
     @Override
     public String getUserID() throws RemoteException {
         return userID;
     }
 
+    // get user text
     @Override
     public String getText() throws RemoteException {
         if (text == null) {
@@ -73,11 +74,13 @@ public class RemoteCanvas extends UnicastRemoteObject implements IRemoteCanvas {
         return text;
     }
 
+    // get user text size
     @Override
     public Integer getTextSize() throws RemoteException {
         return textSize;
     }
 
+    // get user eraser size
     @Override
     public float getEraserSize() throws RemoteException {
         return eraserSize;

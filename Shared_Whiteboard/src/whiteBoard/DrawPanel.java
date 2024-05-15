@@ -254,7 +254,6 @@ public class DrawPanel extends JPanel {
 
             // make sure new client get latest canvas
             sendImage();
-            //debug();
             repaint();
             isMotion = false;
             x1 = x2 = y1 = y2 = 0;
@@ -418,12 +417,6 @@ public class DrawPanel extends JPanel {
     // get isClosed state
     public boolean getIsClosed() {
         return isClosed;
-    }
-
-    // TODO DEBUG MESSAGE
-    public void debug() {
-        System.out.println(isMotion);
-        System.out.println("DEBUG-Draw: " + toolType + " Point: " + startPoint + " " + endPoint);
     }
 
     // ask for render savedFrame
