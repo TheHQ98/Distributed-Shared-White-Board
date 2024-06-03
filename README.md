@@ -26,3 +26,10 @@ COMP90015-2024S1-Assignment2
 
 **Phase 3:**
  - [x] Integrate the whiteboard with the user management skeleton (phases 1 and 2)
+
+
+## Mark
+
+25/25
+
+![mark.png](mark.png)
